@@ -4,23 +4,25 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useLang } from '@/context/LanguageContext'
-import { Award, Globe2, Shield, RefreshCw, Bell, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { Award, Globe2, Shield, RefreshCw, Bell, ChevronRight, CheckCircle2, ShieldAlert, Scan, Eye, AlertTriangle, Gavel, Wifi } from 'lucide-react'
 
 const services = [
   { icon: Globe2,      key: 's1', color: '#DC2626' },
   { icon: Shield,      key: 's2', color: '#EF4444' },
   { icon: Bell,        key: 's3', color: '#F87171' },
   { icon: RefreshCw,   key: 's4', color: '#FFFFFF' },
+  { icon: Gavel,       key: 's5', color: '#DC2626' },
+  { icon: Eye,         key: 's6', color: '#EF4444' },
 ]
 
 const jurisdictions = [
   { flag: '🇺🇸', name: 'United States', office: 'USPTO', time: '8-12 mo' },
-  { flag: '🇨🇳', name: 'China',         office: 'CNIPA', time: '12-18 mo' },
   { flag: '🇪🇺', name: 'European Union', office: 'EUIPO', time: '6-8 mo' },
   { flag: '🇬🇧', name: 'United Kingdom', office: 'UKIPO', time: '4-6 mo' },
   { flag: '🇸🇬', name: 'Singapore',      office: 'IPOS',  time: '6-9 mo' },
   { flag: '🇭🇰', name: 'Hong Kong',      office: 'IPD',   time: '6-12 mo' },
   { flag: '🇯🇵', name: 'Japan',          office: 'JPO',   time: '12-18 mo' },
+  { flag: '🇦🇺', name: 'Australia',      office: 'IP Aus', time: '7-10 mo' },
   { flag: '🌐', name: '100+ via Madrid', office: 'WIPO',  time: '12-18 mo' },
 ]
 
@@ -83,7 +85,12 @@ export default function TrademarksPage() {
       {/* ─── Services ─── */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="text-center mb-12">
+            <div className="section-badge"><Shield size={14} /> Our Services</div>
+            <h2 className="section-headline">Complete Brand Protection</h2>
+            <p className="section-sub">From filing to enforcement — everything you need to protect your intellectual property globally.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map(({ icon: Icon, key, color }) => (
               <div key={key} className="glass-card p-6 hover:border-red-600/30 transition-all duration-300 group">
                 <div
@@ -96,6 +103,76 @@ export default function TrademarksPage() {
                 <p className="text-sm text-white/55 leading-relaxed">{t(`tm.${key}.desc`)}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── DMCA Takedown ─── */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="glass-card p-10 md:p-14 relative overflow-hidden">
+            <div className="glow-orb w-[300px] h-[300px] opacity-15" style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.4) 0%, transparent 70%)', top: '-20%', right: '-5%' }} />
+            <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                <div className="section-badge mb-4"><Gavel size={14} /> {t('tm.dmca.badge')}</div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{t('tm.dmca.headline')}</h2>
+                <p className="text-white/60 mb-6 leading-relaxed">{t('tm.dmca.sub')}</p>
+                <a href="#apply" className="gold-btn inline-flex items-center gap-2">
+                  {t('tm.dmca.cta')} <ChevronRight size={18} />
+                </a>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { icon: AlertTriangle, title: t('tm.dmca.f1.title'), desc: t('tm.dmca.f1.desc') },
+                  { icon: Scan,          title: t('tm.dmca.f2.title'), desc: t('tm.dmca.f2.desc') },
+                  { icon: ShieldAlert,   title: t('tm.dmca.f3.title'), desc: t('tm.dmca.f3.desc') },
+                ].map((f) => (
+                  <div key={f.title} className="flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)' }}>
+                      <f.icon size={18} className="text-red-400" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-white text-sm">{f.title}</div>
+                      <div className="text-xs text-white/50 mt-0.5 leading-relaxed">{f.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Infringement Monitoring ─── */}
+      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="section-badge"><Eye size={14} /> {t('tm.monitor.badge')}</div>
+            <h2 className="section-headline">{t('tm.monitor.headline')}</h2>
+            <p className="section-sub">{t('tm.monitor.sub')}</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {[
+              { icon: Wifi,         title: t('tm.monitor.f1.title'), desc: t('tm.monitor.f1.desc'), tag: 'Online' },
+              { icon: Globe2,       title: t('tm.monitor.f2.title'), desc: t('tm.monitor.f2.desc'), tag: 'Offline' },
+              { icon: ShieldAlert,  title: t('tm.monitor.f3.title'), desc: t('tm.monitor.f3.desc'), tag: 'Enforcement' },
+            ].map((f) => (
+              <div key={f.title} className="glass-card p-6 hover:border-red-600/30 transition-all duration-300 group">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.2)' }}>
+                    <f.icon size={22} className="text-red-400" />
+                  </div>
+                  <span className="text-[10px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full border border-red-600/30 text-red-400 bg-red-500/5">{f.tag}</span>
+                </div>
+                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-white/55 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <a href="#apply" className="gold-btn inline-flex items-center gap-2">
+              {t('tm.monitor.cta')} <ChevronRight size={18} />
+            </a>
           </div>
         </div>
       </section>
