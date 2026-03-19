@@ -41,6 +41,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="nav-link">{t('nav.features')}</a>
           <a href="#jurisdictions" className="nav-link">{t('nav.jurisdictions')}</a>
+          <Link href="/trademarks" className="nav-link">{t('nav.trademarks')}</Link>
           <a href="#pricing" className="nav-link">{t('nav.pricing')}</a>
           <Link href="/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
         </div>
@@ -82,6 +83,7 @@ export default function Navbar() {
         >
           <a href="#features" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.features')}</a>
           <a href="#jurisdictions" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.jurisdictions')}</a>
+          <Link href="/trademarks" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.trademarks')}</Link>
           <a href="#pricing" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.pricing')}</a>
           <Link href="/dashboard" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.dashboard')}</Link>
           <div className="flex items-center gap-3 pt-2">

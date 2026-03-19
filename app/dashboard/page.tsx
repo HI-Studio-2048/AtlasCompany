@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Globe, Building2, FileText, Settings, Plus, BarChart3, ChevronRight, Clock, CheckCircle2, Circle } from 'lucide-react'
+import { Globe, Building2, FileText, Settings, Plus, BarChart3, ChevronRight, Clock, CheckCircle2, Circle, Award } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
 
 type Tab = 'companies' | 'documents' | 'tracker'
@@ -98,6 +98,15 @@ export default function DashboardPage() {
           ))}
 
           <div className="border-t border-white/8 my-4" />
+
+          <Link
+            href="/trademarks"
+            id="dash-nav-trademarks"
+            className="sidebar-link w-full flex items-center gap-3"
+          >
+            <Award className="w-4 h-4" />
+            {t('dash.trademarks')}
+          </Link>
 
           <button
             id="dash-nav-settings"

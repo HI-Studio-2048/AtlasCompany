@@ -1,5 +1,5 @@
 'use client'
-import { Globe2, Zap, Shield, Building2, BarChart3, Headphones } from 'lucide-react'
+import { Globe2, Zap, Shield, Building2, BarChart3, Headphones, Award } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
 
 const features = [
@@ -9,6 +9,7 @@ const features = [
   { icon: Building2, titleKey: 'feat4.title', descKey: 'feat4.desc', color: '#FFFFFF' },
   { icon: BarChart3, titleKey: 'feat5.title', descKey: 'feat5.desc', color: '#E5E5E5' },
   { icon: Headphones,titleKey: 'feat6.title', descKey: 'feat6.desc', color: '#DC2626' },
+  { icon: Award,     titleKey: 'feat7.title', descKey: 'feat7.desc', color: '#EF4444' },
 ]
 
 export default function FeaturesSection() {
