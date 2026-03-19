@@ -12,10 +12,10 @@ const footerLinks = {
     { label: 'Dashboard',     labelZh: '控制台',    href: '/dashboard' },
   ],
   company: [
-    { label: 'About Us', labelZh: '关于我们', href: '/about' },
-    { label: 'Blog',     labelZh: '博客',    href: '/blog' },
-    { label: 'Contact',  labelZh: '联系我们',  href: '/contact' },
-    { label: 'Press',    labelZh: '媒体',    href: '/contact' },
+    { label: 'About Us',   labelZh: '关于我们', href: '/about' },
+    { label: 'Blog',       labelZh: '博客',    href: '/blog' },
+    { label: 'Affiliates', labelZh: '联盟计划', href: '/affiliates' },
+    { label: 'Contact',    labelZh: '联系我们', href: '/contact' },
   ],
   support: [
     { label: 'Help Center',      labelZh: '帮助中心',  href: '/contact' },
