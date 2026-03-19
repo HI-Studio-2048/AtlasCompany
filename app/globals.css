@@ -5,14 +5,14 @@
 @tailwind utilities;
 
 :root {
-  --navy-950: #020817;
-  --navy-900: #0A0F1E;
-  --navy-800: #0D1629;
-  --navy-700: #152238;
-  --navy-600: #1E2D4F;
-  --gold-500: #D4AF37;
-  --gold-400: #E5C158;
-  --gold-300: #F5D77E;
+  --navy-950: #000000;
+  --navy-900: #0A0A0A;
+  --navy-800: #111111;
+  --navy-700: #161616;
+  --navy-600: #1C1C1C;
+  --gold-500: #DC2626;
+  --gold-400: #EF4444;
+  --gold-300: #F87171;
 }
 
 * {
@@ -42,26 +42,26 @@ body {
 @layer components {
   .gold-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #D4AF37 0%, #F5D77E 50%, #D4AF37 100%);
+    background-image: linear-gradient(135deg, #DC2626 0%, #F87171 50%, #DC2626 100%);
   }
 
   .glass-card {
     @apply border border-white/10 rounded-2xl;
-    background: linear-gradient(135deg, rgba(30,45,79,0.5) 0%, rgba(13,22,41,0.7) 100%);
+    background: linear-gradient(135deg, rgba(28,28,28,0.5) 0%, rgba(17,17,17,0.7) 100%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
 
   .gold-btn {
-    @apply relative inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-navy-900 overflow-hidden transition-all duration-300;
-    background: linear-gradient(135deg, #D4AF37 0%, #F5D77E 50%, #D4AF37 100%);
+    @apply relative inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300;
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #DC2626 100%);
     background-size: 200% auto;
   }
 
   .gold-btn:hover {
     background-position: right center;
     transform: translateY(-2px);
-    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.35);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.40);
   }
 
   .ghost-btn {
@@ -69,14 +69,16 @@ body {
   }
 
   .ghost-btn:hover {
-    @apply border-gold-500 text-gold-400;
-    background: rgba(212, 175, 55, 0.08);
+    @apply border-red-500 text-red-400;
+    background: rgba(220, 38, 38, 0.08);
     transform: translateY(-2px);
   }
 
   .section-badge {
-    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium border border-gold-500/30 text-gold-400 mb-6;
-    background: rgba(212, 175, 55, 0.08);
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6;
+    border: 1px solid rgba(220,38,38,0.35);
+    color: #F87171;
+    background: rgba(220,38,38,0.08);
   }
 
   .section-headline {
@@ -89,7 +91,7 @@ body {
 
   /* Dot grid background */
   .dot-grid {
-    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 
@@ -113,7 +115,7 @@ body {
     left: 0;
     width: 0;
     height: 1px;
-    background: linear-gradient(90deg, #D4AF37, #F5D77E);
+    background: linear-gradient(90deg, #DC2626, #F87171);
     transition: width 0.3s ease;
   }
 
@@ -134,12 +136,13 @@ body {
 
   /* Progress bar */
   .progress-bar {
-    @apply h-1.5 rounded-full bg-navy-700 overflow-hidden;
+    @apply h-1.5 rounded-full overflow-hidden;
+    background: rgba(255,255,255,0.08);
   }
 
   .progress-fill {
     @apply h-full rounded-full transition-all duration-700;
-    background: linear-gradient(90deg, #D4AF37, #F5D77E);
+    background: linear-gradient(90deg, #DC2626, #F87171);
   }
 
   /* Sidebar */
@@ -148,16 +151,30 @@ body {
   }
 
   .sidebar-link.active {
-    @apply text-gold-400 bg-gold-500/10 border border-gold-500/20;
+    color: #F87171;
+    background: rgba(220,38,38,0.1);
+    border: 1px solid rgba(220,38,38,0.2);
   }
 
   /* Input styles */
   .atlas-input {
-    @apply w-full px-4 py-3 rounded-xl border border-white/10 bg-navy-800/80 text-white placeholder-white/30 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all duration-200 text-sm;
+    @apply w-full px-4 py-3 rounded-xl border border-white/10 text-white placeholder-white/30 focus:outline-none transition-all duration-200 text-sm;
+    background: rgba(17,17,17,0.9);
+  }
+
+  .atlas-input:focus {
+    border-color: rgba(220,38,38,0.5);
+    box-shadow: 0 0 0 1px rgba(220,38,38,0.3);
   }
 
   .atlas-select {
-    @apply w-full px-4 py-3 rounded-xl border border-white/10 bg-navy-800/80 text-white focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all duration-200 text-sm cursor-pointer;
+    @apply w-full px-4 py-3 rounded-xl border border-white/10 text-white focus:outline-none transition-all duration-200 text-sm cursor-pointer;
+    background: rgba(17,17,17,0.9);
+  }
+
+  .atlas-select:focus {
+    border-color: rgba(220,38,38,0.5);
+    box-shadow: 0 0 0 1px rgba(220,38,38,0.3);
   }
 }
 

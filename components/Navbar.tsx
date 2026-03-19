@@ -22,7 +22,7 @@ export default function Navbar() {
       }`}
       style={{
         background: scrolled
-          ? 'rgba(10,15,30,0.92)'
+          ? 'rgba(10,10,10,0.92)'
           : 'transparent',
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
       }}
@@ -31,7 +31,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #D4AF37, #F5D77E)' }}>
+            style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
             <Globe className="w-4 h-4 text-navy-900" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-lg tracking-tight">Atlas</span>
@@ -78,7 +78,7 @@ export default function Navbar() {
       {menuOpen && (
         <div
           className="md:hidden border-t border-white/10 px-6 py-4 flex flex-col gap-4"
-          style={{ background: 'rgba(10,15,30,0.97)', backdropFilter: 'blur(20px)' }}
+          style={{ background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(20px)' }}
         >
           <a href="#features" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.features')}</a>
           <a href="#jurisdictions" className="text-sm font-medium text-white/70 hover:text-white" onClick={() => setMenuOpen(false)}>{t('nav.jurisdictions')}</a>

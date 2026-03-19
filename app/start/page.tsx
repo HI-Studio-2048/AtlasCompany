@@ -9,7 +9,7 @@ export const metadata = {
 export default function StartPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0F1E' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0A0A' }}>
         <div className="w-8 h-8 border-2 border-gold-500/30 border-t-gold-400 rounded-full animate-spin" />
       </div>
     }>

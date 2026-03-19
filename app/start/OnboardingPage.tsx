@@ -66,7 +66,7 @@ export default function OnboardingPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: '#0A0F1E' }}>
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: '#0A0A0A' }}>
         <div className="text-center max-w-md">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
             style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)' }}>
@@ -83,13 +83,13 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen dot-grid" style={{ background: '#0A0F1E' }}>
+    <div className="min-h-screen dot-grid" style={{ background: '#0A0A0A' }}>
       {/* Top nav */}
       <div className="border-b border-white/8 px-6 h-16 flex items-center justify-between"
-        style={{ background: 'rgba(10,15,30,0.9)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 50 }}>
+        style={{ background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 50 }}>
         <Link href="/" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #D4AF37, #F5D77E)' }}>
+            style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
             <Globe className="w-3.5 h-3.5 text-navy-900" strokeWidth={2.5} />
           </div>
           <span className="font-bold">Atlas</span>
@@ -115,9 +115,9 @@ export default function OnboardingPage() {
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
                     style={{
-                      background: isDone ? 'linear-gradient(135deg, #D4AF37, #F5D77E)' : isActive ? 'rgba(212,175,55,0.2)' : 'rgba(30,45,79,0.6)',
-                      border: isActive ? '1px solid #D4AF37' : isDone ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                      color: isDone ? '#0A0F1E' : isActive ? '#D4AF37' : 'rgba(255,255,255,0.3)',
+                      background: isDone ? 'linear-gradient(135deg, #DC2626, #F87171)' : isActive ? 'rgba(220,38,38,0.2)' : 'rgba(28,28,28,0.6)',
+                      border: isActive ? '1px solid #DC2626' : isDone ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                      color: isDone ? '#0A0A0A' : isActive ? '#DC2626' : 'rgba(255,255,255,0.3)',
                     }}
                   >
                     {isDone ? <CheckCircle2 className="w-4 h-4" /> : num}
@@ -126,7 +126,7 @@ export default function OnboardingPage() {
                 </div>
                 {i < steps.length - 1 && (
                   <div className="flex-1 h-px mx-2 transition-all duration-300"
-                    style={{ background: isDone ? 'linear-gradient(90deg, #D4AF37, #F5D77E)' : 'rgba(255,255,255,0.1)' }} />
+                    style={{ background: isDone ? 'linear-gradient(90deg, #DC2626, #F87171)' : 'rgba(255,255,255,0.1)' }} />
                 )}
               </div>
             )
@@ -147,8 +147,8 @@ export default function OnboardingPage() {
                     onClick={() => setForm({ ...form, jurisdiction: j.name })}
                     className="flex items-center gap-2.5 p-3.5 rounded-xl border text-left transition-all duration-200"
                     style={{
-                      border: form.jurisdiction === j.name ? '1px solid #D4AF37' : '1px solid rgba(255,255,255,0.1)',
-                      background: form.jurisdiction === j.name ? 'rgba(212,175,55,0.1)' : 'rgba(30,45,79,0.3)',
+                      border: form.jurisdiction === j.name ? '1px solid #DC2626' : '1px solid rgba(255,255,255,0.1)',
+                      background: form.jurisdiction === j.name ? 'rgba(220,38,38,0.1)' : 'rgba(28,28,28,0.3)',
                     }}
                   >
                     <span className="text-xl">{j.flag}</span>
@@ -174,12 +174,12 @@ export default function OnboardingPage() {
                     onClick={() => setForm({ ...form, businessType: bt.id })}
                     className="flex items-start gap-4 p-5 rounded-xl border text-left transition-all duration-200"
                     style={{
-                      border: form.businessType === bt.id ? '1px solid #D4AF37' : '1px solid rgba(255,255,255,0.1)',
-                      background: form.businessType === bt.id ? 'rgba(212,175,55,0.1)' : 'rgba(30,45,79,0.3)',
+                      border: form.businessType === bt.id ? '1px solid #DC2626' : '1px solid rgba(255,255,255,0.1)',
+                      background: form.businessType === bt.id ? 'rgba(220,38,38,0.1)' : 'rgba(28,28,28,0.3)',
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                      style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.2)' }}>
                       <Building2 className="w-5 h-5 text-gold-400" />
                     </div>
                     <div>
@@ -283,7 +283,7 @@ export default function OnboardingPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-6 p-4 rounded-xl" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
+              <div className="mt-6 p-4 rounded-xl" style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)' }}>
                 <p className="text-sm text-gold-300/80">
                   By submitting, you agree to our Terms of Service and Privacy Policy. Our team will contact you within 24 hours.
                 </p>

@@ -12,15 +12,15 @@ export default function CtaBanner() {
         <div
           className="relative rounded-3xl overflow-hidden p-12 text-center"
           style={{
-            background: 'linear-gradient(135deg, rgba(30,45,79,0.8) 0%, rgba(13,22,41,0.9) 100%)',
-            border: '1px solid rgba(212,175,55,0.25)',
-            boxShadow: '0 0 80px rgba(212,175,55,0.08)',
+            background: 'linear-gradient(135deg, rgba(28,28,28,0.8) 0%, rgba(17,17,17,0.9) 100%)',
+            border: '1px solid rgba(220,38,38,0.25)',
+            boxShadow: '0 0 80px rgba(220,38,38,0.08)',
           }}
         >
           {/* Glow */}
           <div
             className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(212,175,55,0.4), transparent)' }}
+            style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(220,38,38,0.4), transparent)' }}
           />
 
           {/* Content */}

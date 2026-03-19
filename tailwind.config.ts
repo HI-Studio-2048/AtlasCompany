@@ -11,21 +11,21 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          950: '#020817',
-          900: '#0A0F1E',
-          800: '#0D1629',
-          700: '#152238',
-          600: '#1E2D4F',
-          500: '#2A3F6A',
+          950: '#000000',
+          900: '#0A0A0A',
+          800: '#111111',
+          700: '#161616',
+          600: '#1C1C1C',
+          500: '#262626',
         },
         gold: {
-          100: '#FDF5D8',
-          200: '#FAE9A0',
-          300: '#F5D77E',
-          400: '#E5C158',
-          500: '#D4AF37',
-          600: '#B8942A',
-          700: '#9A7A20',
+          100: '#FFEAED',
+          200: '#FFBFC6',
+          300: '#FCA5A5',
+          400: '#F87171',
+          500: '#EF4444',
+          600: '#DC2626',
+          700: '#B91C1C',
         },
       },
       fontFamily: {
@@ -33,9 +33,9 @@ const config: Config = {
         display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
-        'hero-gradient': 'radial-gradient(ellipse 80% 60% at 50% -10%, #1E2D4F 0%, #0A0F1E 60%, #020817 100%)',
-        'gold-gradient': 'linear-gradient(135deg, #D4AF37 0%, #F5D77E 50%, #D4AF37 100%)',
-        'card-gradient': 'linear-gradient(135deg, rgba(30,45,79,0.6) 0%, rgba(13,22,41,0.8) 100%)',
+        'hero-gradient': 'radial-gradient(ellipse 80% 60% at 50% -10%, #1C1C1C 0%, #0A0A0A 60%, #000000 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #DC2626 0%, #F87171 50%, #DC2626 100%)',
+        'card-gradient': 'linear-gradient(135deg, rgba(28,28,28,0.6) 0%, rgba(17,17,17,0.8) 100%)',
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',
@@ -54,8 +54,8 @@ const config: Config = {
           '50%': { opacity: '0.7' },
         },
         glow: {
-          from: { boxShadow: '0 0 20px rgba(212, 175, 55, 0.3)' },
-          to: { boxShadow: '0 0 40px rgba(212, 175, 55, 0.7)' },
+          from: { boxShadow: '0 0 20px rgba(220,38,38,0.3)' },
+          to: { boxShadow: '0 0 40px rgba(220,38,38,0.7)' },
         },
         'fade-up': {
           from: { opacity: '0', transform: 'translateY(30px)' },

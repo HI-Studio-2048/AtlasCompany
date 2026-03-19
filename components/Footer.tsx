@@ -35,7 +35,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #D4AF37, #F5D77E)' }}>
+                style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
                 <Globe className="w-4 h-4 text-navy-900" strokeWidth={2.5} />
               </div>
               <span className="font-bold text-lg">Atlas</span>

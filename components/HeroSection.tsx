@@ -17,26 +17,26 @@ export default function HeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden dot-grid">
       {/* Background orbs */}
       <div
-        className="glow-orb w-[600px] h-[600px] opacity-20"
+        className="glow-orb w-[700px] h-[700px] opacity-20"
         style={{
-          background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
-          top: '-10%',
+          background: 'radial-gradient(circle, rgba(220,38,38,0.35) 0%, transparent 70%)',
+          top: '-15%',
           left: '50%',
           transform: 'translateX(-50%)',
         }}
       />
       <div
-        className="glow-orb w-[400px] h-[400px] opacity-15"
+        className="glow-orb w-[350px] h-[350px] opacity-10"
         style={{
-          background: 'radial-gradient(circle, rgba(59,130,246,0.5) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(220,38,38,0.2) 0%, transparent 70%)',
           bottom: '10%',
           right: '-5%',
         }}
       />
       <div
-        className="glow-orb w-[300px] h-[300px] opacity-10"
+        className="glow-orb w-[250px] h-[250px] opacity-8"
         style={{
-          background: 'radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)',
           top: '20%',
           left: '-5%',
         }}
@@ -106,7 +106,7 @@ export default function HeroSection() {
             <span
               key={j}
               className="px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 text-white/50"
-              style={{ background: 'rgba(30,45,79,0.4)' }}
+              style={{ background: 'rgba(28,28,28,0.4)' }}
             >
               {j}
             </span>
@@ -117,7 +117,7 @@ export default function HeroSection() {
       {/* Bottom gradient fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, transparent, #0A0F1E)' }}
+        style={{ background: 'linear-gradient(to bottom, transparent, #0A0A0A)' }}
       />
     </section>
   )

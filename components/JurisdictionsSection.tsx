@@ -78,7 +78,7 @@ export default function JurisdictionsSection() {
               {j.highlight && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold text-navy-900"
-                  style={{ background: 'linear-gradient(135deg, #D4AF37, #F5D77E)' }}
+                  style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}
                 >
                   Popular
                 </div>
@@ -104,7 +104,7 @@ export default function JurisdictionsSection() {
                   <span
                     key={type}
                     className="px-2 py-0.5 rounded text-xs border border-white/10 text-white/50"
-                    style={{ background: 'rgba(30,45,79,0.4)' }}
+                    style={{ background: 'rgba(28,28,28,0.4)' }}
                   >
                     {type}
                   </span>

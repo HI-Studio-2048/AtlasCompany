@@ -3,12 +3,12 @@ import { Globe2, Zap, Shield, Building2, BarChart3, Headphones } from 'lucide-re
 import { useLang } from '@/context/LanguageContext'
 
 const features = [
-  { icon: Globe2,    titleKey: 'feat1.title', descKey: 'feat1.desc', color: '#D4AF37' },
-  { icon: Zap,       titleKey: 'feat2.title', descKey: 'feat2.desc', color: '#60A5FA' },
-  { icon: Shield,    titleKey: 'feat3.title', descKey: 'feat3.desc', color: '#34D399' },
-  { icon: Building2, titleKey: 'feat4.title', descKey: 'feat4.desc', color: '#F472B6' },
-  { icon: BarChart3, titleKey: 'feat5.title', descKey: 'feat5.desc', color: '#A78BFA' },
-  { icon: Headphones,titleKey: 'feat6.title', descKey: 'feat6.desc', color: '#FB923C' },
+  { icon: Globe2,    titleKey: 'feat1.title', descKey: 'feat1.desc', color: '#DC2626' },
+  { icon: Zap,       titleKey: 'feat2.title', descKey: 'feat2.desc', color: '#EF4444' },
+  { icon: Shield,    titleKey: 'feat3.title', descKey: 'feat3.desc', color: '#F87171' },
+  { icon: Building2, titleKey: 'feat4.title', descKey: 'feat4.desc', color: '#FFFFFF' },
+  { icon: BarChart3, titleKey: 'feat5.title', descKey: 'feat5.desc', color: '#E5E5E5' },
+  { icon: Headphones,titleKey: 'feat6.title', descKey: 'feat6.desc', color: '#DC2626' },
 ]
 
 export default function FeaturesSection() {
@@ -19,7 +19,7 @@ export default function FeaturesSection() {
       <div
         className="glow-orb w-[500px] h-[500px] opacity-10"
         style={{
-          background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(220,38,38,0.4) 0%, transparent 70%)',
           top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
         }}
       />
