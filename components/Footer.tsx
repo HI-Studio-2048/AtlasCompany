@@ -5,22 +5,23 @@ import { useLang } from '@/context/LanguageContext'
 
 const footerLinks = {
   product: [
-    { label: 'Features', labelZh: '功能', href: '#features' },
-    { label: 'Jurisdictions', labelZh: '司法管辖区', href: '#jurisdictions' },
-    { label: 'Pricing', labelZh: '定价', href: '#pricing' },
-    { label: 'Dashboard', labelZh: '控制台', href: '/dashboard' },
+    { label: 'Features',      labelZh: '功能',     href: '/#features' },
+    { label: 'Jurisdictions', labelZh: '司法管辖区', href: '/#jurisdictions' },
+    { label: 'Pricing',       labelZh: '定价',     href: '/pricing' },
+    { label: 'Trademarks',    labelZh: '商标',     href: '/trademarks' },
+    { label: 'Dashboard',     labelZh: '控制台',    href: '/dashboard' },
   ],
   company: [
-    { label: 'About Us', labelZh: '关于我们', href: '#' },
-    { label: 'Careers', labelZh: '招聘', href: '#' },
-    { label: 'Blog', labelZh: '博客', href: '#' },
-    { label: 'Press', labelZh: '媒体', href: '#' },
+    { label: 'About Us', labelZh: '关于我们', href: '/about' },
+    { label: 'Blog',     labelZh: '博客',    href: '/blog' },
+    { label: 'Contact',  labelZh: '联系我们',  href: '/contact' },
+    { label: 'Press',    labelZh: '媒体',    href: '/contact' },
   ],
   support: [
-    { label: 'Help Center', labelZh: '帮助中心', href: '#' },
-    { label: 'Contact', labelZh: '联系我们', href: '#' },
-    { label: 'Privacy Policy', labelZh: '隐私政策', href: '#' },
-    { label: 'Terms of Service', labelZh: '服务条款', href: '#' },
+    { label: 'Help Center',      labelZh: '帮助中心',  href: '/contact' },
+    { label: 'Contact',          labelZh: '联系我们',  href: '/contact' },
+    { label: 'Privacy Policy',   labelZh: '隐私政策',  href: '/legal/privacy' },
+    { label: 'Terms of Service', labelZh: '服务条款',  href: '/legal/terms' },
   ],
 }
 
@@ -71,9 +72,9 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
+                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
                     {lang === 'en' ? link.label : link.labelZh}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,9 +84,9 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
+                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
                     {lang === 'en' ? link.label : link.labelZh}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -95,9 +96,9 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
+                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
                     {lang === 'en' ? link.label : link.labelZh}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
