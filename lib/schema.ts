@@ -151,8 +151,8 @@ export const payments = pgTable('payments', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   companyId: text('company_id').references(() => companies.id),
-  stripeSessionId: text('stripe_session_id').unique(),
-  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  airwallexIntentId: text('airwallex_intent_id').unique(),
+  airwallexPaymentId: text('airwallex_payment_id'),
   amount: integer('amount').notNull(), // in cents
   currency: varchar('currency', { length: 10 }).default('usd'),
   status: varchar('status', { length: 20 }).default('pending'), // pending | paid | failed | refunded
