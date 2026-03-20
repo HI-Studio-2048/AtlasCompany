@@ -2,9 +2,11 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Globe, CheckCircle2, ChevronRight, ArrowLeft, Building2 } from 'lucide-react'
+import { CheckCircle2, ChevronRight, ArrowLeft, Building2 } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
 import { useAuth } from '@/context/AuthContext'
+import AtlasLogo from '@/components/AtlasLogo'
+
 
 const jurisdictions = [
   { flag: '🇺🇸', name: 'United States', nameZh: '美国' },
@@ -119,10 +121,10 @@ export default function OnboardingPage() {
       {/* Top nav */}
       <div className="border-b border-white/8 px-6 h-16 flex items-center justify-between"
         style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 group">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
-            <Globe className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+            <AtlasLogo className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold">Atlas</span>
         </Link>

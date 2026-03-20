@@ -1,5 +1,7 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from './nextauth'
+import { auth, currentUser } from '@clerk/nextjs/server'
+import { db } from './db'
+import { users } from './schema'
+import { eq } from 'drizzle-orm'
 
 export interface SessionData {
   userId: string
@@ -10,21 +12,53 @@ export interface SessionData {
   isLoggedIn: boolean
 }
 
-// Drop-in replacement for the old iron-session getSession().
-// All existing API routes call this and check session.isLoggedIn / session.userId.
+// Lightweight auth check — used by every API route.
 export async function getSession(): Promise<SessionData> {
-  const session = await getServerSession(authOptions)
+  const { userId } = await auth()
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return { userId: '', isLoggedIn: false }
   }
 
-  return {
-    userId: session.user.id,
-    email: session.user.email ?? undefined,
-    name: session.user.name ?? undefined,
-    avatar: session.user.image ?? undefined,
-    provider: session.user.provider ?? undefined,
-    isLoggedIn: true,
-  }
+  return { userId, isLoggedIn: true }
+}
+
+// Check if the current Clerk user is in the ADMIN_USER_IDS env var
+export async function isAdmin(): Promise<boolean> {
+  const { userId } = await auth()
+  if (!userId) return false
+  const adminIds = (process.env.ADMIN_USER_IDS ?? '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+  return adminIds.includes(userId)
+}
+
+// Upsert the Clerk user into our own DB so FK references (companies.userId etc.)
+// are always satisfied. Call this before any DB write that references a user row.
+export async function syncUser(): Promise<void> {
+  const { userId } = await auth()
+  if (!userId) return
+
+  const existing = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  if (existing.length > 0) return
+
+  const clerkUser = await currentUser()
+  if (!clerkUser) return
+
+  const email = clerkUser.emailAddresses[0]?.emailAddress ?? undefined
+  const name =
+    [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') ||
+    undefined
+  const provider = clerkUser.externalAccounts[0]?.provider ?? 'email'
+
+  await db
+    .insert(users)
+    .values({ id: userId, email, name, avatar: clerkUser.imageUrl, provider })
+    .onConflictDoNothing()
 }

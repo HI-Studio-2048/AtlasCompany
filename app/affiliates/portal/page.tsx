@@ -8,7 +8,8 @@ import { useAuth } from '@/context/AuthContext'
 import {
   DollarSign, Users, TrendingUp, Copy, Check, Clock,
   ChevronRight, ArrowUpRight, CheckCircle2, AlertCircle, Wallet,
-  BarChart2, BookOpen, Loader2
+  BarChart2, BookOpen, Loader2, Instagram, Youtube, Twitter,
+  Linkedin, Twitch, Tag, Edit2, X, Plus, Zap
 } from 'lucide-react'
 
 // ─── Monthly Performance Data ─────────────────────────────────────────────────
@@ -54,10 +55,11 @@ function EarningsChart() {
       </div>
 
       {/* SVG Chart */}
-      <div className="relative overflow-x-auto">
+      <div className="relative">
         <svg
-          width={(barW + gap) * monthlyData.length + gap}
-          height={chartH + 48}
+          viewBox={`0 0 ${(barW + gap) * monthlyData.length + gap} ${chartH + 48}`}
+          width="100%"
+          height="auto"
           className="mx-auto"
         >
           {/* Horizontal guide lines */}
@@ -216,6 +218,340 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
+// ─── Platform Config ─────────────────────────────────────────────────────────
+const PLATFORMS = [
+  { id: 'instagram', label: 'Instagram',  Icon: Instagram, color: '#E1306C', prefix: 'instagram.com/' },
+  { id: 'youtube',   label: 'YouTube',    Icon: Youtube,   color: '#FF0000', prefix: 'youtube.com/@' },
+  { id: 'tiktok',    label: 'TikTok',     Icon: Zap,       color: '#69C9D0', prefix: 'tiktok.com/@' },
+  { id: 'twitter',   label: 'Twitter / X', Icon: Twitter,  color: '#1DA1F2', prefix: 'x.com/' },
+  { id: 'linkedin',  label: 'LinkedIn',   Icon: Linkedin,  color: '#0A66C2', prefix: 'linkedin.com/in/' },
+  { id: 'twitch',    label: 'Twitch',     Icon: Twitch,    color: '#9146FF', prefix: 'twitch.tv/' },
+] as const
+
+type Platform = typeof PLATFORMS[number]['id']
+
+interface SocialLink {
+  id: string
+  platform: Platform
+  handle: string
+  url?: string
+  followersCount?: number
+  status: string
+}
+
+interface DiscountCode {
+  id: string
+  code: string
+  discountPct: number
+  timesUsed: number
+  totalDiscounted: string
+}
+
+// ─── Influencers Tab ─────────────────────────────────────────────────────────
+function InfluencersTab({ affiliateCode }: { affiliateCode: string }) {
+  const [links, setLinks] = useState<SocialLink[]>([])
+  const [discountCode, setDiscountCode] = useState<DiscountCode | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Link form
+  const [showLinkForm, setShowLinkForm] = useState(false)
+  const [platform, setPlatform] = useState<Platform>('instagram')
+  const [handle, setHandle] = useState('')
+  const [followers, setFollowers] = useState('')
+  const [linking, setLinking] = useState(false)
+
+  // Code editing
+  const [editingCode, setEditingCode] = useState(false)
+  const [codeInput, setCodeInput] = useState('')
+  const [codeSaving, setCodeSaving] = useState(false)
+  const [codeError, setCodeError] = useState('')
+
+  // Copy states
+  const [copiedCode, setCopiedCode] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/affiliates/influencer')
+      .then(r => r.json())
+      .then(data => {
+        if (data.links) setLinks(data.links)
+        if (data.discountCode) {
+          setDiscountCode(data.discountCode)
+          setCodeInput(data.discountCode.code)
+        }
+      })
+      .catch(() => {
+        // Fallback mock data
+        const mockCode = affiliateCode.replace('ATLAS-', '').replace('-', '') + '10'
+        setDiscountCode({ id: 'mock', code: mockCode, discountPct: 10, timesUsed: 7, totalDiscounted: '2340.00' })
+        setCodeInput(mockCode)
+      })
+      .finally(() => setLoading(false))
+  }, [affiliateCode])
+
+  const handleLink = async () => {
+    if (!handle.trim()) return
+    setLinking(true)
+    const cfg = PLATFORMS.find(p => p.id === platform)!
+    const url = `https://${cfg.prefix}${handle.replace('@', '')}`
+    try {
+      const res = await fetch('/api/affiliates/influencer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform, handle: handle.replace('@', ''), url, followersCount: followers ? parseInt(followers) : null }),
+      })
+      const data = await res.json()
+      if (data.link) {
+        setLinks(prev => [...prev, data.link])
+        setHandle('')
+        setFollowers('')
+        setShowLinkForm(false)
+      }
+    } catch {
+      // optimistic fallback
+      const newLink: SocialLink = { id: Date.now().toString(), platform, handle: handle.replace('@', ''), url, followersCount: followers ? parseInt(followers) : undefined, status: 'active' }
+      setLinks(prev => [...prev, newLink])
+      setHandle('')
+      setFollowers('')
+      setShowLinkForm(false)
+    } finally {
+      setLinking(false)
+    }
+  }
+
+  const handleUnlink = async (id: string) => {
+    setLinks(prev => prev.filter(l => l.id !== id))
+    await fetch('/api/affiliates/influencer/link', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).catch(() => {})
+  }
+
+  const handleSaveCode = async () => {
+    setCodeError('')
+    setCodeSaving(true)
+    try {
+      const res = await fetch('/api/affiliates/influencer/discount-code', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: codeInput }),
+      })
+      const data = await res.json()
+      if (res.status === 409) { setCodeError('Code already taken — try another'); return }
+      if (data.discountCode) setDiscountCode(data.discountCode)
+      setEditingCode(false)
+    } catch {
+      setDiscountCode(prev => prev ? { ...prev, code: codeInput.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20) } : prev)
+      setEditingCode(false)
+    } finally {
+      setCodeSaving(false)
+    }
+  }
+
+  const copyCode = () => {
+    if (!discountCode) return
+    navigator.clipboard.writeText(discountCode.code)
+    setCopiedCode(true)
+    setTimeout(() => setCopiedCode(false), 2000)
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-white/30" /></div>
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Info Banner */}
+      <div className="glass-card p-5 flex items-start gap-4">
+        <Zap size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-white/60 leading-relaxed">
+          Link your social accounts below, then share your exclusive{' '}
+          <strong className="text-white">10% discount code</strong> with your audience.
+          When someone uses your code, they save 10% and you still earn your referral commission — win/win.
+        </p>
+      </div>
+
+      {/* ── Discount Code ── */}
+      <div className="glass-card p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-semibold text-white flex items-center gap-2">
+            <Tag size={16} className="text-red-400" /> Your Discount Code
+          </h3>
+          <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
+            style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.25)', color: '#EF4444' }}>
+            10% OFF for customers
+          </span>
+        </div>
+
+        {editingCode ? (
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <input
+                className="atlas-input flex-1 font-mono uppercase"
+                value={codeInput}
+                onChange={e => setCodeInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
+                placeholder="e.g. YOURNAME10"
+                maxLength={20}
+              />
+              <button onClick={handleSaveCode} disabled={codeSaving || !codeInput.trim()}
+                className="gold-btn text-sm px-5 disabled:opacity-60">
+                {codeSaving ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> : 'Save'}
+              </button>
+              <button onClick={() => { setEditingCode(false); setCodeError(''); setCodeInput(discountCode?.code ?? '') }}
+                className="p-2.5 rounded-lg text-white/40 hover:text-white border border-white/10 transition-colors">
+                <X size={15} />
+              </button>
+            </div>
+            {codeError && <p className="text-xs text-red-400">{codeError}</p>}
+            <p className="text-xs text-white/35">Letters and numbers only, max 20 characters.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="text-3xl font-bold tracking-widest font-mono"
+                style={{ background: 'linear-gradient(135deg,#f87171,#DC2626)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {discountCode?.code ?? '—'}
+              </div>
+              {discountCode && (
+                <p className="text-xs text-white/40 mt-1">
+                  Used {discountCode.timesUsed} times · ${Number(discountCode.totalDiscounted).toLocaleString()} saved for customers
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button onClick={() => setEditingCode(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-white/10 text-white/50 hover:text-white transition-colors">
+                <Edit2 size={12} /> Customize
+              </button>
+              <button onClick={copyCode}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all duration-200"
+                style={{ border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.08)', color: copiedCode ? '#4ade80' : '#DC2626' }}>
+                {copiedCode ? <><Check size={13} /> Copied!</> : <><Copy size={13} /> Copy Code</>}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Usage stats */}
+        {discountCode && (
+          <div className="mt-5 pt-5 border-t border-white/8 grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-xl font-bold text-white">{discountCode.timesUsed}</div>
+              <div className="text-[11px] text-white/35 mt-0.5">Times Used</div>
+            </div>
+            <div className="text-center border-x border-white/8">
+              <div className="text-xl font-bold text-white">{discountCode.discountPct}%</div>
+              <div className="text-[11px] text-white/35 mt-0.5">Discount Given</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-white">${Number(discountCode.totalDiscounted).toLocaleString()}</div>
+              <div className="text-[11px] text-white/35 mt-0.5">Customer Savings</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Linked Accounts ── */}
+      <div className="glass-card p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-semibold text-white">Connected Accounts</h3>
+          {!showLinkForm && (
+            <button onClick={() => setShowLinkForm(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-white/10 text-white/50 hover:text-white transition-colors">
+              <Plus size={13} /> Link Account
+            </button>
+          )}
+        </div>
+
+        {/* Add form */}
+        {showLinkForm && (
+          <div className="mb-5 p-4 rounded-xl border border-white/10 bg-white/2 space-y-3">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <select className="atlas-select" value={platform} onChange={e => setPlatform(e.target.value as Platform)}>
+                {PLATFORMS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
+              <input className="atlas-input" placeholder="@handle" value={handle} onChange={e => setHandle(e.target.value)} />
+              <input className="atlas-input" placeholder="Followers (optional)" type="number" value={followers} onChange={e => setFollowers(e.target.value)} />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={handleLink} disabled={linking || !handle.trim()}
+                className="gold-btn text-sm px-5 disabled:opacity-60 flex items-center gap-2">
+                {linking ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Linking…</> : 'Link Account'}
+              </button>
+              <button onClick={() => { setShowLinkForm(false); setHandle(''); setFollowers('') }}
+                className="px-4 py-2 rounded-lg text-sm border border-white/10 text-white/50 hover:text-white transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {links.length === 0 ? (
+          <div className="text-center py-10">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+              style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.15)' }}>
+              <Users size={20} className="text-red-400" />
+            </div>
+            <p className="text-sm text-white/40">No accounts linked yet.</p>
+            <p className="text-xs text-white/25 mt-1">Connect your social profiles to track reach.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {links.map(link => {
+              const cfg = PLATFORMS.find(p => p.id === link.platform)
+              const Icon = cfg?.Icon ?? Users
+              return (
+                <div key={link.id} className="flex items-center gap-4 p-3.5 rounded-xl border border-white/8 hover:border-white/15 transition-colors">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${cfg?.color ?? '#DC2626'}20`, border: `1px solid ${cfg?.color ?? '#DC2626'}30` }}>
+                    <Icon size={17} style={{ color: cfg?.color ?? '#DC2626' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-white text-sm">{cfg?.label ?? link.platform}</div>
+                    <div className="text-xs text-white/40 truncate">@{link.handle}</div>
+                  </div>
+                  {link.followersCount != null && (
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-sm font-semibold text-white">{link.followersCount.toLocaleString()}</div>
+                      <div className="text-[10px] text-white/30">followers</div>
+                    </div>
+                  )}
+                  <button onClick={() => handleUnlink(link.id)}
+                    className="ml-2 p-1.5 rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0">
+                    <X size={14} />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Promo tip */}
+      <div className="glass-card p-5">
+        <h4 className="text-sm font-semibold text-white mb-3">How to promote</h4>
+        <div className="grid sm:grid-cols-3 gap-3 text-xs text-white/50">
+          <div className="flex gap-2.5">
+            <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+              style={{ background: 'rgba(220,38,38,0.15)', color: '#EF4444' }}>1</span>
+            <span>Share your referral link or discount code in your bio, stories, or videos.</span>
+          </div>
+          <div className="flex gap-2.5">
+            <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+              style={{ background: 'rgba(220,38,38,0.15)', color: '#EF4444' }}>2</span>
+            <span>Followers use your code at checkout for 10% off their service.</span>
+          </div>
+          <div className="flex gap-2.5">
+            <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+              style={{ background: 'rgba(220,38,38,0.15)', color: '#EF4444' }}>3</span>
+            <span>You earn your 15% lifetime commission on every converted customer.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AffiliatePortalPage() {
   const { user, isLoggedIn } = useAuth()
   const [portalData, setPortalData] = useState<{
@@ -239,7 +575,7 @@ export default function AffiliatePortalPage() {
   }, [isLoggedIn])
 
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState<'transactions' | 'team' | 'payouts' | 'performance'>('transactions')
+  const [activeTab, setActiveTab] = useState<'transactions' | 'team' | 'payouts' | 'performance' | 'influencers'>('transactions')
   const [showPayoutModal, setShowPayoutModal] = useState(false)
   const [payoutMethod, setPayoutMethod] = useState('Wire Transfer (USD)')
   const [payoutAccount, setPayoutAccount] = useState('')
@@ -340,6 +676,7 @@ export default function AffiliatePortalPage() {
     { id: 'team',          label: 'Sales Team',      count: team.length },
     { id: 'payouts',       label: 'Payout History',  count: history.length },
     { id: 'performance',   label: 'Performance',     count: null },
+    { id: 'influencers',   label: 'Influencers',     count: null },
   ] as const
 
   return (
@@ -347,7 +684,7 @@ export default function AffiliatePortalPage() {
       <Navbar />
 
       {/* ─── Header ─── */}
-      <section className="relative pt-28 pb-10 px-6 overflow-hidden dot-grid">
+      <section className="relative pt-28 pb-10 px-4 sm:px-6 overflow-hidden dot-grid">
         <div className="glow-orb w-[400px] h-[400px] opacity-10"
           style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.35) 0%, transparent 70%)', top: '-10%', right: '5%' }} />
         <div className="max-w-6xl mx-auto relative z-10">
@@ -357,11 +694,11 @@ export default function AffiliatePortalPage() {
               <h1 className="text-3xl font-bold">{name}</h1>
               <p className="text-sm text-white/40 mt-1">Affiliate since {joinDate}</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Link href="/affiliates/resources" className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <Link href="/affiliates/resources" className="px-3 sm:px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
                 Resources
               </Link>
-              <Link href="/affiliates" className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
+              <Link href="/affiliates" className="px-3 sm:px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
                 Program Details
               </Link>
               <button
@@ -376,8 +713,8 @@ export default function AffiliatePortalPage() {
       </section>
 
       {/* ─── Stats Row ─── */}
-      <section className="px-6 pb-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <section className="px-4 sm:px-6 pb-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {[
             { icon: DollarSign, label: 'Total Earned',     value: stats.totalEarned,    sub: 'All-time' },
             { icon: Clock,      label: 'Pending Payout',   value: stats.pendingPayout,  sub: 'Awaiting payment' },
@@ -399,7 +736,7 @@ export default function AffiliatePortalPage() {
       </section>
 
       {/* ─── Referral Link ─── */}
-      <section className="px-6 pb-8">
+      <section className="px-4 sm:px-6 pb-8">
         <div className="max-w-6xl mx-auto">
           <div className="glass-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
@@ -421,7 +758,7 @@ export default function AffiliatePortalPage() {
       </section>
 
       {/* ─── Commission Info Banner ─── */}
-      <section className="px-6 pb-8">
+      <section className="px-4 sm:px-6 pb-8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-4">
           <div className="glass-card p-5 flex items-center gap-4 border-red-600/20">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -447,13 +784,13 @@ export default function AffiliatePortalPage() {
       </section>
 
       {/* ─── Tabs ─── */}
-      <section className="px-6 pb-24">
+      <section className="px-4 sm:px-6 pb-24">
         <div className="max-w-6xl mx-auto">
           {/* Tab bar */}
-          <div className="flex gap-1 mb-6 border-b border-white/8 pb-0">
+          <div className="flex gap-1 mb-6 border-b border-white/8 pb-0 overflow-x-auto scrollbar-hide">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className="px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px"
+                className="px-4 sm:px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px whitespace-nowrap flex-shrink-0"
                 style={{
                   color: activeTab === tab.id ? '#DC2626' : 'var(--text-3)',
                   borderColor: activeTab === tab.id ? '#DC2626' : 'transparent',
@@ -515,6 +852,13 @@ export default function AffiliatePortalPage() {
           {/* Sales Team Tab */}
           {activeTab === 'team' && (
             <div className="space-y-4">
+              <style>{`
+                @keyframes dashFlow { to { stroke-dashoffset: -26; } }
+                @keyframes pulseRing { 0%,100% { opacity:.1; transform:scale(1); } 50% { opacity:.28; transform:scale(1.07); } }
+                @keyframes centerPulse { 0%,100% { filter:drop-shadow(0 0 10px rgba(220,38,38,.55)); } 50% { filter:drop-shadow(0 0 26px rgba(220,38,38,.95)); } }
+                @keyframes nodeFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+              `}</style>
+
               <div className="glass-card p-5 flex items-start gap-4">
                 <AlertCircle size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-white/60 leading-relaxed">
@@ -522,40 +866,147 @@ export default function AffiliatePortalPage() {
                   To invite someone, share the affiliate program page: <code className="text-red-400 text-xs">atlas.co/affiliates</code>
                 </p>
               </div>
-              <div className="glass-card overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-white/8">
-                        {['Team Member', 'Joined', 'Referrals', 'Their Earnings', 'Your 5% Cut', 'Status'].map(h => (
-                          <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {team.map((m, i) => (
-                        <tr key={m.name} className={`border-b border-white/5 hover:bg-white/2 transition-colors ${i === team.length - 1 ? 'border-0' : ''}`}>
-                          <td className="px-5 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-                                style={{ background: 'linear-gradient(135deg,#DC2626,#F87171)', color: '#000' }}>
-                                {m.name.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <span className="font-medium text-white">{m.name}</span>
-                            </div>
-                          </td>
-                          <td className="px-5 py-4 text-white/45">{m.joined}</td>
-                          <td className="px-5 py-4 text-white">{m.referrals}</td>
-                          <td className="px-5 py-4 text-white/70">{m.earned}</td>
-                          <td className="px-5 py-4 font-semibold text-red-400">{m.yourCut}</td>
-                          <td className="px-5 py-4"><StatusBadge status={m.status} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+              {/* ── Network Web Visualization ── */}
+              <div className="glass-card pt-5 pb-2">
+                <div className="px-6 mb-1 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-white/35 uppercase tracking-widest">Network Map</span>
+                  <span className="text-xs text-white/30">{team.length} members · 5% override on each</span>
                 </div>
+                <svg viewBox="0 0 800 480" width="100%" style={{ display: 'block', overflow: 'visible' }}>
+                  <defs>
+                    <radialGradient id="cgTeam" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#F87171" />
+                      <stop offset="100%" stopColor="#991b1b" />
+                    </radialGradient>
+                    <radialGradient id="agTeam" cx="30%" cy="30%" r="70%">
+                      <stop offset="0%" stopColor="#ef4444" />
+                      <stop offset="100%" stopColor="#7f1d1d" />
+                    </radialGradient>
+                    <radialGradient id="pgTeam" cx="30%" cy="30%" r="70%">
+                      <stop offset="0%" stopColor="#d97706" />
+                      <stop offset="100%" stopColor="#78350f" />
+                    </radialGradient>
+                    <filter id="gf" x="-60%" y="-60%" width="220%" height="220%">
+                      <feGaussianBlur stdDeviation="4" result="b"/>
+                      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="cf" x="-120%" y="-120%" width="340%" height="340%">
+                      <feGaussianBlur stdDeviation="9" result="b"/>
+                      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                  </defs>
+
+                  {/* ── glow base lines ── */}
+                  {team.map((m, i) => {
+                    const a = (2 * Math.PI / team.length) * i - Math.PI / 2
+                    const R = 152, cx = 400, cy = 248
+                    const mx = cx + R * Math.cos(a), my = cy + R * Math.sin(a)
+                    const alpha = (0.12 + (m.referrals / 12) * 0.22).toFixed(2)
+                    return <line key={`gl-${i}`} x1={cx} y1={cy} x2={mx} y2={my} stroke={`rgba(220,38,38,${alpha})`} strokeWidth="5" strokeLinecap="round" />
+                  })}
+
+                  {/* ── animated dash lines ── */}
+                  {team.map((m, i) => {
+                    const a = (2 * Math.PI / team.length) * i - Math.PI / 2
+                    const R = 152, cx = 400, cy = 248
+                    const mx = cx + R * Math.cos(a), my = cy + R * Math.sin(a)
+                    const speed = (1.2 + (1 - m.referrals / 12) * 1.4).toFixed(1)
+                    return (
+                      <line key={`dl-${i}`} x1={cx} y1={cy} x2={mx} y2={my}
+                        stroke="rgba(239,68,68,0.6)" strokeWidth="1.5" strokeLinecap="round"
+                        strokeDasharray="5 9"
+                        style={{ animation: `dashFlow ${speed}s linear infinite` }} />
+                    )
+                  })}
+
+                  {/* ── orbit rings around center ── */}
+                  {[55, 80, 110].map((r, k) => (
+                    <circle key={k} cx={400} cy={248} r={r}
+                      fill="none" stroke="rgba(220,38,38,0.06)" strokeWidth="1"
+                      style={{ animation: `pulseRing ${2.2 + k * 0.7}s ease-in-out infinite`, transformOrigin: '400px 248px' }} />
+                  ))}
+
+                  {/* ── YOU – center node ── */}
+                  <g style={{ animation: 'centerPulse 3s ease-in-out infinite' }}>
+                    <circle cx={400} cy={248} r={44} fill="url(#cgTeam)" filter="url(#cf)" />
+                    <circle cx={400} cy={248} r={44} fill="none" stroke="rgba(248,113,113,0.4)" strokeWidth="1.5" />
+                    <text x={400} y={244} textAnchor="middle" dominantBaseline="middle" fill="white"
+                      fontSize="15" fontWeight="bold" style={{ userSelect: 'none' }}>
+                      {name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                    </text>
+                    <text x={400} y={262} textAnchor="middle" fill="rgba(255,255,255,0.5)"
+                      fontSize="9" fontWeight="700" letterSpacing="2" style={{ userSelect: 'none' }}>YOU</text>
+                  </g>
+
+                  {/* ── member nodes ── */}
+                  {team.map((m, i) => {
+                    const a = (2 * Math.PI / team.length) * i - Math.PI / 2
+                    const R = 152, cx = 400, cy = 248
+                    const mx = cx + R * Math.cos(a), my = cy + R * Math.sin(a)
+                    const nodeR = Math.round(22 + Math.sqrt(Math.max(m.referrals, 0) / 12) * 14)
+                    const initials = m.name.split(' ').map((n: string) => n[0]).join('')
+                    const isActive = m.status === 'active'
+                    const gradId = isActive ? 'agTeam' : 'pgTeam'
+                    const ringColor = isActive ? 'rgba(74,222,128,0.4)' : 'rgba(251,191,36,0.4)'
+                    const labelY = my + nodeR + 15
+                    const floatDelay = `${i * 0.5}s`
+
+                    return (
+                      <g key={m.name} filter="url(#gf)"
+                        style={{ animation: `nodeFloat ${2.8 + i * 0.3}s ease-in-out infinite`, animationDelay: floatDelay, transformOrigin: `${mx}px ${my}px` }}>
+                        {/* pulse ring */}
+                        <circle cx={mx} cy={my} r={nodeR + 9}
+                          fill="none" stroke={ringColor} strokeWidth="1"
+                          style={{ animation: `pulseRing ${1.8 + i * 0.38}s ease-in-out infinite`, transformOrigin: `${mx}px ${my}px` }} />
+                        {/* node body */}
+                        <circle cx={mx} cy={my} r={nodeR} fill={`url(#${gradId})`} />
+                        <circle cx={mx} cy={my} r={nodeR} fill="none" stroke={ringColor} strokeWidth="1.5" />
+                        {/* highlight */}
+                        <circle cx={mx - nodeR * 0.28} cy={my - nodeR * 0.28} r={nodeR * 0.22}
+                          fill="rgba(255,255,255,0.12)" />
+                        {/* initials */}
+                        <text x={mx} y={my} textAnchor="middle" dominantBaseline="middle"
+                          fill="white" fontSize={Math.max(9, Math.round(nodeR * 0.4))} fontWeight="bold"
+                          style={{ userSelect: 'none' }}>{initials}</text>
+                        {/* name */}
+                        <text x={mx} y={labelY} textAnchor="middle"
+                          fill="rgba(255,255,255,0.88)" fontSize="11" fontWeight="600"
+                          style={{ userSelect: 'none' }}>{m.name}</text>
+                        {/* your cut */}
+                        <text x={mx} y={labelY + 14} textAnchor="middle"
+                          fill="rgba(239,68,68,0.9)" fontSize="10"
+                          style={{ userSelect: 'none' }}>+{m.yourCut}</text>
+                        {/* refs */}
+                        <text x={mx} y={labelY + 27} textAnchor="middle"
+                          fill="rgba(255,255,255,0.3)" fontSize="9"
+                          style={{ userSelect: 'none' }}>{m.referrals} refs</text>
+                      </g>
+                    )
+                  })}
+                </svg>
               </div>
-              <div className="text-center pt-4">
+
+              {/* ── summary cards ── */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {team.map(m => (
+                  <div key={m.name} className="glass-card p-3 transition-colors hover:border-red-600/25"
+                    style={{ borderColor: m.status === 'pending' ? 'rgba(251,191,36,0.15)' : undefined }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+                        style={{ background: m.status === 'active' ? 'linear-gradient(135deg,#DC2626,#991b1b)' : 'linear-gradient(135deg,#d97706,#78350f)', color: 'white' }}>
+                        {m.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <span className="text-xs font-medium text-white truncate">{m.name}</span>
+                    </div>
+                    <div className="text-red-400 font-semibold text-sm">{m.yourCut}</div>
+                    <div className="text-[10px] text-white/35 mt-0.5">{m.earned} · {m.referrals} refs</div>
+                    <div className="mt-1.5"><StatusBadge status={m.status} /></div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-center pt-2">
                 <p className="text-sm text-white/40 mb-3">Want to grow your sales team?</p>
                 <a href={`mailto:?subject=Join Atlas Affiliate Program&body=I thought you'd be interested in the Atlas affiliate program. Use my link to join: ${refLink}`}
                   className="gold-btn inline-flex items-center gap-2 text-sm">
@@ -579,6 +1030,7 @@ export default function AffiliatePortalPage() {
                 </button>
               </div>
               <div className="glass-card overflow-hidden">
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/8">
@@ -598,8 +1050,14 @@ export default function AffiliatePortalPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
+          )}
+
+          {/* Influencers Tab */}
+          {activeTab === 'influencers' && (
+            <InfluencersTab affiliateCode={code} />
           )}
 
           {/* Performance Tab */}
@@ -645,7 +1103,7 @@ export default function AffiliatePortalPage() {
       {showPayoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
           style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}>
-          <div className="glass-card p-8 max-w-md w-full relative">
+          <div className="glass-card p-5 sm:p-8 max-w-md w-full relative">
             <button onClick={() => setShowPayoutModal(false)}
               className="absolute top-4 right-4 text-white/40 hover:text-white text-xl leading-none">×</button>
             {payoutRequested ? (

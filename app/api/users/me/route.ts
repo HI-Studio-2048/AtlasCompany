@@ -33,10 +33,5 @@ export async function PATCH(req: NextRequest) {
     .where(eq(users.id, session.userId))
     .returning()
 
-  // Refresh session name
-  const sess = await getSession()
-  sess.name = updated.name ?? sess.name
-  await sess.save()
-
   return NextResponse.json(updated)
 }

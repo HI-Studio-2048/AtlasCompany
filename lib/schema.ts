@@ -102,6 +102,34 @@ export const affiliatePayoutRequests = pgTable('affiliate_payout_requests', {
 
 export type AffiliatePayoutRequest = typeof affiliatePayoutRequests.$inferSelect
 
+// ─── Influencer Program ───────────────────────────────────────────────────────
+
+export const influencerLinks = pgTable('influencer_links', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  affiliateId: text('affiliate_id').references(() => affiliates.id, { onDelete: 'cascade' }).notNull(),
+  platform: varchar('platform', { length: 30 }).notNull(), // instagram | youtube | tiktok | twitter | twitch | linkedin
+  handle: text('handle').notNull(),
+  url: text('url'),
+  followersCount: integer('followers_count'),
+  status: varchar('status', { length: 20 }).default('active'), // active | pending | rejected
+  createdAt: timestamp('created_at').defaultNow(),
+})
+
+export type InfluencerLink = typeof influencerLinks.$inferSelect
+
+export const influencerDiscountCodes = pgTable('influencer_discount_codes', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  affiliateId: text('affiliate_id').references(() => affiliates.id, { onDelete: 'cascade' }).notNull().unique(),
+  code: text('code').notNull().unique(), // e.g. DS7K210OFF
+  discountPct: integer('discount_pct').default(10),
+  timesUsed: integer('times_used').default(0),
+  totalDiscounted: numeric('total_discounted', { precision: 10, scale: 2 }).default('0'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+export type InfluencerDiscountCode = typeof influencerDiscountCodes.$inferSelect
+
 // ─── Trademark Applications ───────────────────────────────────────────────────
 
 export const trademarkApplications = pgTable('trademark_applications', {

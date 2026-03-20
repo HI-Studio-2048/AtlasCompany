@@ -165,12 +165,12 @@ html:not(.dark) .always-white *        { color: #fff !important; }
   }
 
   .section-headline {
-    @apply text-4xl md:text-5xl font-bold leading-tight;
+    @apply text-2xl sm:text-4xl md:text-5xl font-bold leading-tight;
     color: var(--text);
   }
 
   .section-sub {
-    @apply text-lg max-w-2xl mx-auto mt-4;
+    @apply text-base sm:text-lg max-w-2xl mx-auto mt-4;
     color: var(--text-2);
   }
 
@@ -267,4 +267,6 @@ html:not(.dark) .always-white *        { color: #fff !important; }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 }

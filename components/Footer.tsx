@@ -1,7 +1,9 @@
 'use client'
 import Link from 'next/link'
-import { Globe, Twitter, Linkedin, Mail } from 'lucide-react'
+import { Twitter, Linkedin, Mail, Globe } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
+import AtlasLogo from '@/components/AtlasLogo'
+
 
 const footerLinks = {
   product: [
@@ -30,14 +32,14 @@ export default function Footer() {
 
   return (
     <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
+            <Link href="/" className="flex items-center gap-2.5 mb-4 group">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
-                <Globe className="w-4 h-4 text-white" strokeWidth={2.5} />
+                <AtlasLogo className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-lg" style={{ color: 'var(--text)' }}>Atlas</span>
             </Link>
@@ -88,7 +90,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
+        <div className="mt-8 sm:mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
           style={{ borderTop: '1px solid var(--border)' }}>
           <p className="text-sm" style={{ color: 'var(--text-4)' }}>{t('footer.copyright')}</p>
           <div className="flex items-center gap-2">

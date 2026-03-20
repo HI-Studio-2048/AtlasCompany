@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
 import { companies, payments } from '@/lib/schema'
-import { eq } from 'drizzle-orm'
 import { sendCompanyConfirmation } from '@/lib/email'
 
 export async function POST(req: NextRequest) {

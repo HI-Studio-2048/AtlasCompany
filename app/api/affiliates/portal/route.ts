@@ -40,11 +40,40 @@ export async function GET() {
     .from(affiliateReferrals)
     .where(and(eq(affiliateReferrals.affiliateId, affiliate.id), eq(affiliateReferrals.status, 'pending')))
 
-  // Team members (other affiliates with parentAffiliateId = this affiliate's id)
-  const teamMembers = await db
+  // Team members with aggregated earnings
+  const rawTeamMembers = await db
     .select()
     .from(affiliates)
     .where(eq(affiliates.parentAffiliateId, affiliate.id))
+
+  // For each team member, get their referral totals and calculate parent's cut
+  const teamMembers = await Promise.all(
+    rawTeamMembers.map(async (member) => {
+      const [memberStats] = await db
+        .select({
+          totalEarned: sum(affiliateReferrals.commissionAmount),
+          referrals: count(affiliateReferrals.id),
+        })
+        .from(affiliateReferrals)
+        .where(eq(affiliateReferrals.affiliateId, member.id))
+
+      const memberTotal = Number(memberStats.totalEarned ?? 0)
+      // Parent earns 5% of the transaction amounts that generated the member's 15% commission
+      // i.e. yourCut = memberTotal / 0.15 * 0.05 = memberTotal * (1/3)
+      const yourCut = memberTotal / 3
+
+      return {
+        name: member.name,
+        joined: member.joinedAt
+          ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : '',
+        referrals: Number(memberStats.referrals ?? 0),
+        earned: `$${memberTotal.toFixed(2)}`,
+        status: member.status ?? 'active',
+        yourCut: `$${yourCut.toFixed(2)}`,
+      }
+    })
+  )
 
   // Recent transactions
   const transactions = await db
@@ -68,7 +97,7 @@ export async function GET() {
       totalEarned: Number(directStats.totalCommission ?? 0) + Number(teamStats.teamBonus ?? 0),
       pendingPayout: Number(pendingPayout.pending ?? 0),
       totalReferrals: Number(directStats.totalReferrals ?? 0),
-      teamSize: teamMembers.length,
+      teamSize: rawTeamMembers.length,
       teamBonus: Number(teamStats.teamBonus ?? 0),
     },
     transactions,

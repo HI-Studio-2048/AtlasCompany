@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useUser, useClerk } from '@clerk/nextjs'
 
 interface AuthContextType {
   user: {
@@ -24,27 +24,29 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession()
+  const { user: clerkUser, isLoaded, isSignedIn } = useUser()
+  const { signOut } = useClerk()
 
-  const user = session?.user?.id
-    ? {
-        userId: session.user.id,
-        email: session.user.email ?? undefined,
-        name: session.user.name ?? undefined,
-        avatar: session.user.image ?? undefined,
-        provider: session.user.provider ?? undefined,
-      }
-    : null
+  const user =
+    clerkUser && isSignedIn
+      ? {
+          userId: clerkUser.id,
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? undefined,
+          name: clerkUser.fullName ?? undefined,
+          avatar: clerkUser.imageUrl,
+          provider: clerkUser.externalAccounts[0]?.provider ?? undefined,
+        }
+      : null
 
   const logout = async () => {
-    await signOut({ callbackUrl: '/' })
+    await signOut({ redirectUrl: '/' })
   }
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoading: status === 'loading',
+        isLoading: !isLoaded,
         isLoggedIn: !!user,
         logout,
       }}

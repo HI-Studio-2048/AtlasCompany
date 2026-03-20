@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ClerkProvider } from '@clerk/nextjs'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { AuthProvider } from '@/context/AuthContext'
-import { SessionProvider } from 'next-auth/react'
 
 export const metadata: Metadata = {
   title: 'Atlas Company — Global Business Formation',
@@ -35,18 +35,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="antialiased">
-        <SessionProvider>
+        <ClerkProvider>
           <ThemeProvider>
             <LanguageProvider>
               <AuthProvider>{children}</AuthProvider>
             </LanguageProvider>
           </ThemeProvider>
-        </SessionProvider>
+        </ClerkProvider>
       </body>
     </html>
   )

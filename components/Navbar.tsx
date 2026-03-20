@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Globe, Menu, X, Sun, Moon } from 'lucide-react'
+import { Menu, X, Sun, Moon, Globe } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
+import AtlasLogo from '@/components/AtlasLogo'
+
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
 
@@ -30,12 +32,12 @@ export default function Navbar() {
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
-            <Globe className="w-4 h-4 text-white" strokeWidth={2.5} />
+            <AtlasLogo className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--text)' }}>Atlas</span>
         </Link>

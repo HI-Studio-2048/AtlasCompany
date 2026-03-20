@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { getSession, syncUser } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { companies, affiliates, affiliateReferrals } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  // Ensure user row exists in our DB before writing the company FK reference
+  await syncUser()
+
   const [company] = await db.insert(companies).values({
     userId: session.userId,
     companyName,
@@ -61,5 +64,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json(company, { status: 201 })
+  const response = NextResponse.json(company, { status: 201 })
+
+  // Mark user as having completed onboarding so middleware stops redirecting
+  // them to /start. Cookie lives for 5 years — effectively permanent.
+  if (!req.cookies.has('atlas-onboarded')) {
+    response.cookies.set('atlas-onboarded', '1', {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365 * 5,
+      path: '/',
+    })
+  }
+
+  return response
 }
