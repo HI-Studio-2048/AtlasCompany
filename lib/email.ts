@@ -1,6 +1,9 @@
 import { Resend } from 'resend'
 
-export const resend = new Resend(process.env.RESEND_API_KEY!)
+// Lazy instantiation — avoids build-time crash when RESEND_API_KEY is not set
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!)
+}
 
 const FROM = 'Atlas <noreply@atlas.co>'
 
@@ -17,7 +20,7 @@ export async function sendCompanyConfirmation({
   jurisdiction: string
   businessType: string
 }) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: `Your company formation request has been received — ${companyName}`,
@@ -56,7 +59,7 @@ export async function sendContactConfirmation({
   name: string
   inquiryType?: string
 }) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: 'We received your message — Atlas',
@@ -79,7 +82,7 @@ export async function sendAffiliateWelcome({
   to: string
   name: string
 }) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: 'Your affiliate application is under review — Atlas',
