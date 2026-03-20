@@ -29,7 +29,7 @@ export default function Footer() {
   const { t, lang, setLang } = useLang()
 
   return (
-    <footer className="border-t border-white/8 bg-navy-950">
+    <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
           {/* Brand */}
@@ -37,29 +37,27 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
-                <Globe className="w-4 h-4 text-navy-900" strokeWidth={2.5} />
+                <Globe className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
-              <span className="font-bold text-lg">Atlas</span>
+              <span className="font-bold text-lg" style={{ color: 'var(--text)' }}>Atlas</span>
             </Link>
-            <p className="text-white/50 text-sm leading-relaxed max-w-xs">
+            <p className="text-sm leading-relaxed max-w-xs" style={{ color: 'var(--text-3)' }}>
               {t('footer.tagline')}
             </p>
             <div className="flex items-center gap-3 mt-6">
-              <a href="#" className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-gold-500/40 transition-all duration-200">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-gold-500/40 transition-all duration-200">
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-gold-500/40 transition-all duration-200">
-                <Mail className="w-4 h-4" />
-              </a>
+              {[Twitter, Linkedin, Mail].map((Icon, i) => (
+                <a key={i} href="#"
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:border-red-500/40"
+                  style={{ border: '1px solid var(--border-strong)', color: 'var(--text-3)' }}>
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
 
-            {/* Language toggle */}
             <button
               onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-              className="mt-6 flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-sm text-white/60 hover:text-white hover:border-gold-500/40 transition-all duration-200"
+              className="mt-6 flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200"
+              style={{ border: '1px solid var(--border-strong)', color: 'var(--text-3)' }}
             >
               <Globe className="w-3.5 h-3.5" />
               {lang === 'en' ? '切换到中文' : 'Switch to English'}
@@ -67,50 +65,35 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.product')}</h4>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
-                    {lang === 'en' ? link.label : link.labelZh}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.company')}</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
-                    {lang === 'en' ? link.label : link.labelZh}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.support')}</h4>
-            <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors duration-200">
-                    {lang === 'en' ? link.label : link.labelZh}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {[
+            { key: 'footer.product', links: footerLinks.product },
+            { key: 'footer.company', links: footerLinks.company },
+            { key: 'footer.support', links: footerLinks.support },
+          ].map(col => (
+            <div key={col.key}>
+              <h4 className="text-sm font-semibold mb-4" style={{ color: 'var(--text)' }}>{t(col.key)}</h4>
+              <ul className="space-y-3">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href}
+                      className="text-sm transition-colors duration-200 hover:text-red-500"
+                      style={{ color: 'var(--text-3)' }}>
+                      {lang === 'en' ? link.label : link.labelZh}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-white/8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/40 text-sm">{t('footer.copyright')}</p>
+        <div className="mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
+          style={{ borderTop: '1px solid var(--border)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-4)' }}>{t('footer.copyright')}</p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white/40 text-sm">All systems operational</span>
+            <span className="text-sm" style={{ color: 'var(--text-4)' }}>All systems operational</span>
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ const stats = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* Hero */}
@@ -68,7 +68,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111 50%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <div className="section-badge mb-4"><Building2 size={14} /> Who We Are</div>
@@ -117,7 +117,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111 50%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <div className="section-badge"><Users size={14} /> Our Team</div>

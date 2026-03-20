@@ -86,7 +86,7 @@ Your continued use of the Service after changes become effective constitutes you
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
       <section className="relative pt-32 pb-12 px-6 overflow-hidden dot-grid">
         <div className="glow-orb w-[400px] h-[400px] opacity-10" style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.3) 0%, transparent 70%)', top: '-10%', left: '50%', transform: 'translateX(-50%)' }} />

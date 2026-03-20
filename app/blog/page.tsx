@@ -17,7 +17,7 @@ export default function BlogPage() {
     : blogPosts.filter(p => p.category === activeCategory && !p.featured)
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* Hero */}
@@ -50,9 +50,9 @@ export default function BlogPage() {
               onClick={() => setActiveCategory(cat)}
               className="px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200"
               style={{
-                border: activeCategory === cat ? '1px solid #DC2626' : '1px solid rgba(255,255,255,0.1)',
-                background: activeCategory === cat ? 'rgba(220,38,38,0.1)' : 'rgba(28,28,28,0.3)',
-                color: activeCategory === cat ? '#DC2626' : 'rgba(255,255,255,0.6)',
+                border: activeCategory === cat ? '1px solid #DC2626' : '1px solid var(--border)',
+                background: activeCategory === cat ? 'rgba(220,38,38,0.1)' : 'var(--surface)',
+                color: activeCategory === cat ? '#DC2626' : 'var(--text-2)',
               }}
             >
               {cat}

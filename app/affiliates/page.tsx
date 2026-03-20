@@ -60,7 +60,7 @@ export default function AffiliatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* ─── Hero ─── */}
@@ -82,6 +82,9 @@ export default function AffiliatesPage() {
             </a>
             <Link href="/affiliates/portal" className="px-8 py-4 rounded-xl border border-white/15 font-semibold text-white/70 hover:text-white hover:border-white/30 transition-all duration-200 inline-flex items-center gap-2">
               Affiliate Portal <ArrowRight size={18} />
+            </Link>
+            <Link href="/affiliates/resources" className="px-8 py-4 rounded-xl border border-white/10 font-semibold text-white/45 hover:text-white/70 hover:border-white/20 transition-all duration-200 inline-flex items-center gap-2 text-base">
+              Marketing Kit <ArrowRight size={18} />
             </Link>
           </div>
         </div>
@@ -105,7 +108,7 @@ export default function AffiliatesPage() {
       </section>
 
       {/* ─── Earnings Calculator ─── */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <div className="section-badge"><TrendingUp size={14} /> Earnings Calculator</div>
@@ -193,7 +196,7 @@ export default function AffiliatesPage() {
       </section>
 
       {/* ─── Perks ─── */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="section-headline">Everything Included</h2>
@@ -230,7 +233,7 @@ export default function AffiliatesPage() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #111111 0%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="section-headline">Frequently Asked Questions</h2>

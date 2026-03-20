@@ -34,7 +34,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* Hero */}

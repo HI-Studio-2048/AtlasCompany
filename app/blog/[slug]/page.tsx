@@ -12,7 +12,7 @@ export default function BlogPostPage() {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-navy-900 text-white">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -34,7 +34,7 @@ export default function BlogPostPage() {
     .slice(0, 2)
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* Article Header */}

@@ -42,7 +42,7 @@ export default function TrademarksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* ─── Hero ─── */}
@@ -144,7 +144,7 @@ export default function TrademarksPage() {
       </section>
 
       {/* ─── Infringement Monitoring ─── */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <div className="section-badge"><Eye size={14} /> {t('tm.monitor.badge')}</div>
@@ -178,7 +178,7 @@ export default function TrademarksPage() {
       </section>
 
       {/* ─── Jurisdiction Coverage ─── */}
-      <section className="py-20 px-6" style={{ background: 'linear-gradient(180deg, #111111 0%, #0A0A0A 100%)' }}>
+      <section className="py-20 px-6" style={{ background: 'var(--bg-alt)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <div className="section-badge"><Globe2 size={14} /> Coverage</div>

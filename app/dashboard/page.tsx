@@ -68,16 +68,16 @@ export default function DashboardPage() {
   const getStageIndex = (progress: number) => Math.floor((progress / 100) * formationStages.length)
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#000000' }}>
+    <div className="min-h-screen flex" style={{ background: 'var(--bg)' }}>
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 border-r border-white/8 flex flex-col hidden md:flex"
-        style={{ background: 'rgba(10,10,10,0.95)' }}>
+        style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(20px)' }}>
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-white/8">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
-              <Globe className="w-3.5 h-3.5 text-navy-900" strokeWidth={2.5} />
+              <Globe className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
             </div>
             <span className="font-bold">Atlas</span>
           </Link>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         {/* User footer */}
         <div className="p-4 border-t border-white/8">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-navy-900"
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
               style={{ background: 'linear-gradient(135deg, #DC2626, #F87171)' }}>
               AC
             </div>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="h-16 flex items-center justify-between px-8 border-b border-white/8"
-          style={{ background: 'rgba(10,10,10,0.8)', backdropFilter: 'blur(20px)' }}>
+          style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(20px)' }}>
           <div>
             <div className="text-xs text-white/40 mb-0.5">{t('dash.welcome')}</div>
             <h1 className="text-lg font-semibold text-white">
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                     <div className="flex items-start gap-4">
                       {/* Icon */}
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'rgba(28,28,28,0.8)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                         <Building2 className="w-5 h-5 text-gold-400" />
                       </div>
                       <div>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                       <div className="text-xs text-white/40 mt-0.5">{doc.company}</div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-white/40">
-                      <span className="px-2 py-0.5 rounded border border-white/10 bg-navy-700/50">{doc.type}</span>
+                      <span className="px-2 py-0.5 rounded border border-white/10" style={{ background: 'var(--surface)' }}>{doc.type}</span>
                       <span>{doc.size}</span>
                       <span>{doc.date}</span>
                     </div>
@@ -264,9 +264,9 @@ export default function DashboardPage() {
                     onClick={() => setSelectedCompany(c)}
                     className="px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200"
                     style={{
-                      border: selectedCompany.id === c.id ? '1px solid #DC2626' : '1px solid rgba(255,255,255,0.1)',
-                      background: selectedCompany.id === c.id ? 'rgba(220,38,38,0.1)' : 'rgba(28,28,28,0.3)',
-                      color: selectedCompany.id === c.id ? '#DC2626' : 'rgba(255,255,255,0.6)',
+                      border: selectedCompany.id === c.id ? '1px solid #DC2626' : '1px solid var(--border)',
+                      background: selectedCompany.id === c.id ? 'rgba(220,38,38,0.1)' : 'var(--surface)',
+                      color: selectedCompany.id === c.id ? '#DC2626' : 'var(--text-2)',
                     }}
                   >
                     {c.name}
@@ -314,8 +314,8 @@ export default function DashboardPage() {
                       <div key={stage} className="flex items-center gap-4">
                         <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
                           style={{
-                            background: isDone ? 'rgba(52,211,153,0.15)' : isActive ? 'rgba(220,38,38,0.15)' : 'rgba(28,28,28,0.4)',
-                            border: isDone ? '1px solid rgba(52,211,153,0.3)' : isActive ? '1px solid rgba(220,38,38,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                            background: isDone ? 'rgba(52,211,153,0.15)' : isActive ? 'rgba(220,38,38,0.15)' : 'var(--surface)',
+                            border: isDone ? '1px solid rgba(52,211,153,0.3)' : isActive ? '1px solid rgba(220,38,38,0.4)' : '1px solid var(--border)',
                           }}>
                           {isDone ? (
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />

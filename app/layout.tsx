@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'Atlas Company — Global Business Formation',
@@ -14,6 +15,16 @@ export const metadata: Metadata = {
   },
 }
 
+// Prevents flash of wrong theme on load
+const themeScript = `
+  (function() {
+    try {
+      var t = localStorage.getItem('atlas-theme');
+      if (t === 'dark') document.documentElement.classList.add('dark');
+    } catch(e) {}
+  })();
+`
+
 export default function RootLayout({
   children,
 }: {
@@ -24,9 +35,12 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="bg-navy-900 text-white antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+      <body className="antialiased">
+        <ThemeProvider>
+          <LanguageProvider>{children}</LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

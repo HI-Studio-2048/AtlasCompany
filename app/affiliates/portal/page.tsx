@@ -3,10 +3,161 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { useTheme } from '@/context/ThemeContext'
 import {
   DollarSign, Users, TrendingUp, Copy, Check, Clock,
-  ChevronRight, ArrowUpRight, CheckCircle2, AlertCircle, Wallet
+  ChevronRight, ArrowUpRight, CheckCircle2, AlertCircle, Wallet,
+  BarChart2, BookOpen
 } from 'lucide-react'
+
+// ─── Monthly Performance Data ─────────────────────────────────────────────────
+const monthlyData = [
+  { month: 'Sep',  direct: 480,   team: 0    },
+  { month: 'Oct',  direct: 720,   team: 0    },
+  { month: 'Nov',  direct: 990,   team: 36   },
+  { month: 'Dec',  direct: 1320,  team: 89   },
+  { month: 'Jan',  direct: 1540,  team: 142  },
+  { month: 'Feb',  direct: 1980,  team: 390  },
+  { month: 'Mar',  direct: 2062,  team: 687  },
+]
+
+function EarningsChart() {
+  const [hovered, setHovered] = useState<number | null>(null)
+  const { theme } = useTheme()
+  const gridStroke = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)'
+  const labelFill  = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.35)'
+  const monthFill  = theme === 'dark' ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.45)'
+  const tooltipBg  = theme === 'dark' ? '#1a1a1a' : '#FFFFFF'
+  const tooltipText = theme === 'dark' ? 'white' : '#0D0D0D'
+  const tooltipSub  = theme === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)'
+  const maxVal = Math.max(...monthlyData.map(d => d.direct + d.team))
+  const chartH = 180
+  const barW = 36
+  const gap = 20
+
+  return (
+    <div className="glass-card p-6 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+        <div>
+          <h3 className="font-semibold text-white text-lg">Monthly Earnings</h3>
+          <p className="text-xs text-white/40 mt-0.5">Direct commissions + sales team bonuses</p>
+        </div>
+        <div className="flex items-center gap-5 text-xs text-white/50">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Direct (15%)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: 'rgba(220,38,38,0.3)' }} /> Team (5%)
+          </span>
+        </div>
+      </div>
+
+      {/* SVG Chart */}
+      <div className="relative overflow-x-auto">
+        <svg
+          width={(barW + gap) * monthlyData.length + gap}
+          height={chartH + 48}
+          className="mx-auto"
+        >
+          {/* Horizontal guide lines */}
+          {[0, 0.25, 0.5, 0.75, 1].map(frac => {
+            const y = chartH - frac * chartH
+            const val = Math.round(maxVal * frac)
+            return (
+              <g key={frac}>
+                <line x1={0} y1={y} x2={(barW + gap) * monthlyData.length + gap} y2={y}
+                  stroke={gridStroke} strokeWidth={1} strokeDasharray="4 4" />
+                <text x={0} y={y - 4} fill={labelFill} fontSize={9} textAnchor="start">
+                  ${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}
+                </text>
+              </g>
+            )
+          })}
+
+          {/* Bars */}
+          {monthlyData.map((d, i) => {
+            const x = gap + i * (barW + gap)
+            const totalH = (d.direct + d.team) / maxVal * chartH
+            const directH = d.direct / maxVal * chartH
+            const teamH = d.team / maxVal * chartH
+            const isHov = hovered === i
+            const total = d.direct + d.team
+
+            return (
+              <g key={d.month}
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                style={{ cursor: 'default' }}>
+                {/* Team portion (bottom) */}
+                {teamH > 0 && (
+                  <rect
+                    x={x} y={chartH - teamH} width={barW} height={teamH}
+                    rx={4} ry={4}
+                    fill={isHov ? 'rgba(220,38,38,0.5)' : 'rgba(220,38,38,0.25)'}
+                    style={{ transition: 'fill 0.15s' }}
+                  />
+                )}
+                {/* Direct portion (top) */}
+                <rect
+                  x={x} y={chartH - totalH} width={barW} height={directH + (teamH > 0 ? 4 : 0)}
+                  rx={4} ry={4}
+                  fill={isHov ? '#EF4444' : '#DC2626'}
+                  style={{ transition: 'fill 0.15s' }}
+                />
+
+                {/* Month label */}
+                <text x={x + barW / 2} y={chartH + 18} fill={monthFill}
+                  fontSize={10} textAnchor="middle" fontWeight={isHov ? '600' : '400'}>
+                  {d.month}
+                </text>
+
+                {/* Hover tooltip */}
+                {isHov && (
+                  <g>
+                    <rect x={x - 10} y={chartH - totalH - 44} width={barW + 20} height={36}
+                      rx={6} fill={tooltipBg} stroke="rgba(220,38,38,0.3)" strokeWidth={1} />
+                    <text x={x + barW / 2} y={chartH - totalH - 27} fill={tooltipText}
+                      fontSize={11} textAnchor="middle" fontWeight="700">
+                      ${total.toLocaleString()}
+                    </text>
+                    <text x={x + barW / 2} y={chartH - totalH - 13} fill={tooltipSub}
+                      fontSize={9} textAnchor="middle">
+                      {d.month} 2025
+                    </text>
+                  </g>
+                )}
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+
+      {/* Growth callout */}
+      <div className="mt-6 flex flex-wrap gap-4">
+        <div className="flex-1 min-w-[120px] glass-card p-4 text-center">
+          <div className="text-xs text-white/40 mb-1">MoM Growth</div>
+          <div className="text-xl font-bold text-green-400">+37%</div>
+          <div className="text-[11px] text-white/30">Feb → Mar</div>
+        </div>
+        <div className="flex-1 min-w-[120px] glass-card p-4 text-center">
+          <div className="text-xs text-white/40 mb-1">Best Month</div>
+          <div className="text-xl font-bold text-white">$2,750</div>
+          <div className="text-[11px] text-white/30">March 2025</div>
+        </div>
+        <div className="flex-1 min-w-[120px] glass-card p-4 text-center">
+          <div className="text-xs text-white/40 mb-1">Avg / Month</div>
+          <div className="text-xl font-bold text-white">$1,177</div>
+          <div className="text-[11px] text-white/30">Last 7 months</div>
+        </div>
+        <div className="flex-1 min-w-[120px] glass-card p-4 text-center">
+          <div className="text-xs text-white/40 mb-1">Team Contribution</div>
+          <div className="text-xl font-bold gold-text">25%</div>
+          <div className="text-[11px] text-white/30">Of total this month</div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const affiliateData = {
@@ -54,7 +205,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     paid:    { bg: 'rgba(74,222,128,0.1)',  border: 'rgba(74,222,128,0.3)',  text: '#4ade80', label: 'Paid' },
     pending: { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', text: '#fbbf24', label: 'Pending' },
     active:  { bg: 'rgba(74,222,128,0.1)',  border: 'rgba(74,222,128,0.3)',  text: '#4ade80', label: 'Active' },
-  }[status] ?? { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', text: '#fff', label: status }
+  }[status] ?? { bg: 'var(--surface)', border: 'var(--border)', text: 'var(--text-2)', label: status }
 
   return (
     <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full"
@@ -66,7 +217,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 export default function AffiliatePortalPage() {
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState<'transactions' | 'team' | 'payouts'>('transactions')
+  const [activeTab, setActiveTab] = useState<'transactions' | 'team' | 'payouts' | 'performance'>('transactions')
   const [showPayoutModal, setShowPayoutModal] = useState(false)
   const [payoutRequested, setPayoutRequested] = useState(false)
 
@@ -77,13 +228,14 @@ export default function AffiliatePortalPage() {
   }
 
   const tabs = [
-    { id: 'transactions', label: 'Transactions', count: recentTransactions.length },
-    { id: 'team',         label: 'Sales Team',   count: salesTeam.length },
-    { id: 'payouts',      label: 'Payout History', count: payoutHistory.length },
+    { id: 'transactions',  label: 'Transactions',   count: recentTransactions.length },
+    { id: 'team',          label: 'Sales Team',      count: salesTeam.length },
+    { id: 'payouts',       label: 'Payout History',  count: payoutHistory.length },
+    { id: 'performance',   label: 'Performance',     count: null },
   ] as const
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen">
       <Navbar />
 
       {/* ─── Header ─── */}
@@ -98,6 +250,9 @@ export default function AffiliatePortalPage() {
               <p className="text-sm text-white/40 mt-1">Affiliate since {affiliateData.joinDate}</p>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/affiliates/resources" className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
+                Resources
+              </Link>
               <Link href="/affiliates" className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
                 Program Details
               </Link>
@@ -196,10 +351,12 @@ export default function AffiliatePortalPage() {
                   borderColor: activeTab === tab.id ? '#DC2626' : 'transparent',
                 }}>
                 {tab.label}
-                <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full"
-                  style={{ background: activeTab === tab.id ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.05)', color: activeTab === tab.id ? '#EF4444' : 'rgba(255,255,255,0.3)' }}>
-                  {tab.count}
-                </span>
+                {tab.count !== null && (
+                  <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full"
+                    style={{ background: activeTab === tab.id ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.05)', color: activeTab === tab.id ? '#EF4444' : 'rgba(255,255,255,0.3)' }}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -333,6 +490,43 @@ export default function AffiliatePortalPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Performance Tab */}
+          {activeTab === 'performance' && (
+            <div className="space-y-6">
+              <EarningsChart />
+              <div className="glass-card p-6">
+                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                  <BarChart2 size={16} className="text-red-400" /> Referral Breakdown
+                </h3>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {[
+                    { label: 'Company Formation', txns: 14, earnings: '$2,940', pct: 36 },
+                    { label: 'Trademark Services', txns: 12, earnings: '$2,538', pct: 31 },
+                    { label: 'DMCA & Monitoring',  txns: 8,  earnings: '$1,680', pct: 20 },
+                    { label: 'Brand Monitoring',   txns: 3,  earnings: '$756',   pct: 9  },
+                    { label: 'Other Services',     txns: 1,  earnings: '$328',   pct: 4  },
+                  ].map(s => (
+                    <div key={s.label} className="glass-card p-4">
+                      <div className="text-xs text-white/40 mb-1">{s.label}</div>
+                      <div className="text-lg font-bold text-white">{s.earnings}</div>
+                      <div className="text-xs text-white/35 mb-3">{s.txns} transactions</div>
+                      <div className="h-1.5 rounded-full bg-white/8 overflow-hidden">
+                        <div className="h-full rounded-full bg-red-600" style={{ width: `${s.pct}%` }} />
+                      </div>
+                      <div className="text-[10px] text-white/30 mt-1">{s.pct}% of earnings</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="text-center pt-2">
+                <p className="text-sm text-white/40 mb-3">Want more promotional resources?</p>
+                <Link href="/affiliates/resources" className="gold-btn inline-flex items-center gap-2 text-sm">
+                  <BookOpen size={15} /> Marketing Resources
+                </Link>
               </div>
             </div>
           )}
