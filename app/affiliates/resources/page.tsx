@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -515,9 +515,28 @@ const dontSayList: Record<Lang, string[]> = {
 export default function AffiliateResourcesPage() {
   const { copied, copy } = useCopy()
   const [lang, setLang] = useState<Lang>('en')
+  const [refLink, setRefLink] = useState('https://atlascompany.org/ref/YOURCODE')
+  const [refCode, setRefCode] = useState('YOURCODE')
+
+  useEffect(() => {
+    fetch('/api/affiliates/portal')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.refLink) setRefLink(data.refLink)
+        if (data?.affiliate?.referralCode) setRefCode(data.affiliate.referralCode)
+      })
+      .catch(() => {})
+  }, [])
+
+  // Inject real referral link + code into any template string
+  const inject = (text: string) =>
+    text.replace(/https:\/\/atlas\.co\/ref\/YOURCODE/g, refLink)
+        .replace(/atlas\.co\/ref\/YOURCODE/g, refLink.replace('https://', ''))
+        .replace(/YOURCODE/g, refCode)
+
   const s = ui[lang]
-  const emails = emailTemplates[lang]
-  const posts = socialPosts[lang]
+  const emails = emailTemplates[lang].map(t => ({ ...t, subject: inject(t.subject), body: inject(t.body) }))
+  const posts = socialPosts[lang].map(p => ({ ...p, text: inject(p.text) }))
   const points = talkingPoints[lang]
 
   return (
@@ -587,11 +606,9 @@ export default function AffiliateResourcesPage() {
           <div className="glass-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
               <p className="text-xs text-white/40 mb-1">
-                {s.refNote.split('YOURCODE')[0]}
-                <code className="text-red-400">YOURCODE</code>
-                {s.refNote.split('YOURCODE')[1]}
+                {lang === 'en' ? 'Your referral link — copy and share it anywhere:' : '您的推荐链接 — 随处复制分享：'}
               </p>
-              <code className="text-sm text-red-400">{s.refCode}</code>
+              <code className="text-sm text-red-400">{refLink}</code>
             </div>
             <Link href="/affiliates/portal"
               className="text-xs font-semibold px-4 py-2 rounded-lg flex-shrink-0 flex items-center gap-2 transition-all duration-200"

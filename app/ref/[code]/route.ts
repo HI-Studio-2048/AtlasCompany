@@ -10,7 +10,8 @@ export async function GET(
   // Validate referral code format (same as middleware)
   const isValid = /^[A-Z0-9-]{5,20}$/.test(code)
 
-  const destination = new URL('/', appUrl)
+  // Send directly to onboarding so the referral converts faster
+  const destination = new URL('/start', appUrl)
   const res = NextResponse.redirect(destination)
 
   if (isValid) {

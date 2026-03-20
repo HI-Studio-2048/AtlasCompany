@@ -56,6 +56,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 20
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -110,6 +112,13 @@ export default function AdminPage() {
     (user.email ?? '').toLowerCase().includes(q) ||
     (user.name ?? '').toLowerCase().includes(q)
   )
+
+  // Paginate
+  const activeList = tab === 'companies' ? filteredCompanies : filteredUsers
+  const totalPages = Math.max(1, Math.ceil(activeList.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const pagedCompanies = filteredCompanies.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const pagedUsers = filteredUsers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
@@ -166,7 +175,7 @@ export default function AdminPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
             {(['companies', 'users'] as const).map(t => (
-              <button key={t} onClick={() => setTab(t)}
+              <button key={t} onClick={() => { setTab(t); setPage(1) }}
                 className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                 style={{
                   background: tab === t ? 'linear-gradient(135deg, #DC2626, #F87171)' : 'transparent',
@@ -182,7 +191,7 @@ export default function AdminPage() {
               className="atlas-input pl-9 text-sm w-64"
               placeholder="Search…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => { setSearch(e.target.value); setPage(1) }}
             />
           </div>
         </div>
@@ -204,9 +213,9 @@ export default function AdminPage() {
                 <tbody>
                   {loading ? (
                     <tr><td colSpan={9} className="px-5 py-16 text-center text-white/30">Loading…</td></tr>
-                  ) : filteredCompanies.length === 0 ? (
+                  ) : pagedCompanies.length === 0 ? (
                     <tr><td colSpan={9} className="px-5 py-16 text-center text-white/30">No companies found</td></tr>
-                  ) : filteredCompanies.map(({ company, user }) => (
+                  ) : pagedCompanies.map(({ company, user }) => (
                     <tr key={company.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                       {/* Company name */}
                       <td className="px-5 py-4">
@@ -308,9 +317,9 @@ export default function AdminPage() {
                 <tbody>
                   {loading ? (
                     <tr><td colSpan={6} className="px-5 py-16 text-center text-white/30">Loading…</td></tr>
-                  ) : filteredUsers.length === 0 ? (
+                  ) : pagedUsers.length === 0 ? (
                     <tr><td colSpan={6} className="px-5 py-16 text-center text-white/30">No users found</td></tr>
-                  ) : filteredUsers.map(({ user, companyCount }) => {
+                  ) : pagedUsers.map(({ user, companyCount }) => {
                     const isNew = user.createdAt && new Date(user.createdAt).getTime() > sevenDaysAgo
                     return (
                       <tr key={user.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
@@ -352,6 +361,50 @@ export default function AdminPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+        {/* ── Pagination ───────────────────────────────────────────────────── */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white/40">
+              Showing {((safePage - 1) * PAGE_SIZE) + 1}–{Math.min(safePage * PAGE_SIZE, activeList.length)} of {activeList.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={safePage === 1}
+                className="px-3 py-1.5 rounded-lg border text-white/60 hover:text-white transition-colors disabled:opacity-30"
+                style={{ borderColor: 'var(--border)' }}>
+                ← Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                .reduce<(number | '…')[]>((acc, p, i, arr) => {
+                  if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('…')
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((p, i) => p === '…'
+                  ? <span key={`ellipsis-${i}`} className="text-white/30 px-1">…</span>
+                  : <button key={p}
+                      onClick={() => setPage(p as number)}
+                      className="w-8 h-8 rounded-lg text-xs font-medium transition-all"
+                      style={{
+                        background: safePage === p ? 'rgba(220,38,38,0.2)' : 'transparent',
+                        color: safePage === p ? '#EF4444' : 'rgba(255,255,255,0.5)',
+                        border: safePage === p ? '1px solid rgba(220,38,38,0.3)' : '1px solid transparent',
+                      }}>
+                      {p}
+                    </button>
+                )}
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={safePage === totalPages}
+                className="px-3 py-1.5 rounded-lg border text-white/60 hover:text-white transition-colors disabled:opacity-30"
+                style={{ borderColor: 'var(--border)' }}>
+                Next →
+              </button>
             </div>
           </div>
         )}
