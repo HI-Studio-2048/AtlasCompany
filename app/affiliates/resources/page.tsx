@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import {
   Copy, Check, Download, Mail, MessageSquare, Globe2,
-  FileText, Image, ChevronRight, Zap, Users, DollarSign
+  FileText, Image as ImageIcon, ChevronRight, Zap, Users, DollarSign
 } from 'lucide-react'
 
 // ─── Copy-to-clipboard hook ──────────────────────────────────────────────────
@@ -221,7 +221,7 @@ export default function AffiliateResourcesPage() {
               { icon: Mail, label: '3 Email Templates' },
               { icon: MessageSquare, label: '5 Social Posts' },
               { icon: FileText, label: '5 Objection Scripts' },
-              { icon: Image, label: '5 Banner Specs' },
+              { icon: ImageIcon, label: '5 Banner Specs' },
             ].map(s => (
               <div key={s.label} className="flex items-center gap-2 text-white/45">
                 <s.icon size={14} className="text-red-400" />
@@ -378,7 +378,7 @@ export default function AffiliateResourcesPage() {
           <div className="flex items-center gap-3 mb-10">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.2)' }}>
-              <Image size={18} className="text-red-400" />
+              <ImageIcon size={18} className="text-red-400" />
             </div>
             <div>
               <h2 className="text-2xl font-bold">Banner Ad Specs</h2>
@@ -415,7 +415,7 @@ export default function AffiliateResourcesPage() {
           </div>
           <p className="text-xs text-white/30 mt-4 text-center">
             Need custom creatives, co-branded materials, or a specific format?{' '}
-            <a href="mailto:affiliates@atlas.co" className="text-red-400 hover:underline">Email us</a> and we'll sort it.
+            <a href="mailto:affiliates@atlas.co" className="text-red-400 hover:underline">Email us</a> and we&apos;ll sort it.
           </p>
         </div>
       </section>
@@ -475,7 +475,7 @@ export default function AffiliateResourcesPage() {
               </div>
               <div className="glass-card p-5">
                 <h3 className="font-semibold text-white mb-3 text-sm flex items-center gap-2">
-                  <span className="text-red-400">✕</span> Don't say
+                  <span className="text-red-400">✕</span> Don&apos;t say
                 </h3>
                 <ul className="space-y-2">
                   {[
