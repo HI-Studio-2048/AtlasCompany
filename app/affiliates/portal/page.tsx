@@ -347,13 +347,13 @@ export default function AffiliatePortalPage() {
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className="px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px"
                 style={{
-                  color: activeTab === tab.id ? '#DC2626' : 'rgba(255,255,255,0.4)',
+                  color: activeTab === tab.id ? '#DC2626' : 'var(--text-3)',
                   borderColor: activeTab === tab.id ? '#DC2626' : 'transparent',
                 }}>
                 {tab.label}
                 {tab.count !== null && (
                   <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full"
-                    style={{ background: activeTab === tab.id ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.05)', color: activeTab === tab.id ? '#EF4444' : 'rgba(255,255,255,0.3)' }}>
+                    style={{ background: activeTab === tab.id ? 'rgba(220,38,38,0.12)' : 'var(--border)', color: activeTab === tab.id ? '#EF4444' : 'var(--text-3)' }}>
                     {tab.count}
                   </span>
                 )}
@@ -390,7 +390,7 @@ export default function AffiliatePortalPage() {
                           <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full"
                             style={txn.type === 'direct'
                               ? { background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#EF4444' }
-                              : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)' }}>
+                              : { background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-3)' }}>
                             {txn.type === 'direct' ? 'Direct' : `Team · ${txn.teamMember}`}
                           </span>
                         </td>
