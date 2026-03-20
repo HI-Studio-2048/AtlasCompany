@@ -26,11 +26,29 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name || !form.email || !form.message) return
     setLoading(true)
-    setTimeout(() => { setLoading(false); setSubmitted(true) }, 1400)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          company: form.company,
+          inquiryType: form.type,
+          message: form.message,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSubmitted(true)
+    } catch {
+      // keep form visible on error — user can retry
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

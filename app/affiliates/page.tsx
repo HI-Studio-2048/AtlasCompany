@@ -46,11 +46,23 @@ export default function AffiliatesPage() {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name || !form.email) return
     setLoading(true)
-    setTimeout(() => { setLoading(false); setSubmitted(true) }, 1400)
+    try {
+      const res = await fetch('/api/affiliates/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSubmitted(true)
+    } catch {
+      // keep form visible on error — user can retry
+    } finally {
+      setLoading(false)
+    }
   }
 
   const copyRefLink = () => {

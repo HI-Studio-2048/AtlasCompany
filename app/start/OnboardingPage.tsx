@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Globe, CheckCircle2, ChevronRight, ArrowLeft, Building2 } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
+import { useAuth } from '@/context/AuthContext'
 
 const jurisdictions = [
   { flag: '🇺🇸', name: 'United States', nameZh: '美国' },
@@ -35,8 +36,11 @@ export default function OnboardingPage() {
   const searchParams = useSearchParams()
   const prefilledJuris = searchParams.get('jurisdiction') || ''
 
+  const { isLoggedIn } = useAuth()
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [form, setForm] = useState({
     jurisdiction: prefilledJuris,
     businessType: '',
@@ -62,7 +66,35 @@ export default function OnboardingPage() {
     return false
   }
 
-  const handleSubmit = () => setSubmitted(true)
+  const handleSubmit = async () => {
+    if (!isLoggedIn) {
+      window.location.href = `/login?redirect=/start`
+      return
+    }
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      const res = await fetch('/api/companies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyName: form.companyName,
+          jurisdiction: form.jurisdiction,
+          businessType: form.businessType,
+          industry: form.industry,
+          directors: form.directors,
+          contactEmail: form.email,
+          contactPhone: form.phone,
+        }),
+      })
+      if (!res.ok) throw new Error('Submission failed')
+      setSubmitted(true)
+    } catch {
+      setSubmitError('Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (submitted) {
     return (
@@ -312,13 +344,20 @@ export default function OnboardingPage() {
               {t('onboard.next')} <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
-            <button
-              id="wizard-submit-btn"
-              onClick={handleSubmit}
-              className="gold-btn text-sm px-8 py-2.5 flex items-center gap-2"
-            >
-              {t('onboard.submit')} <CheckCircle2 className="w-4 h-4" />
-            </button>
+            <div className="flex flex-col items-end gap-2">
+              {submitError && <p className="text-xs text-red-400">{submitError}</p>}
+              <button
+                id="wizard-submit-btn"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="gold-btn text-sm px-8 py-2.5 flex items-center gap-2 disabled:opacity-60"
+              >
+                {submitting
+                  ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting…</>
+                  : <>{t('onboard.submit')} <CheckCircle2 className="w-4 h-4" /></>
+                }
+              </button>
+            </div>
           )}
         </div>
       </div>

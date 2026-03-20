@@ -1,13 +1,14 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useTheme } from '@/context/ThemeContext'
+import { useAuth } from '@/context/AuthContext'
 import {
   DollarSign, Users, TrendingUp, Copy, Check, Clock,
   ChevronRight, ArrowUpRight, CheckCircle2, AlertCircle, Wallet,
-  BarChart2, BookOpen
+  BarChart2, BookOpen, Loader2
 } from 'lucide-react'
 
 // ─── Monthly Performance Data ─────────────────────────────────────────────────
@@ -216,21 +217,128 @@ const StatusBadge = ({ status }: { status: string }) => {
 }
 
 export default function AffiliatePortalPage() {
+  const { user, isLoggedIn } = useAuth()
+  const [portalData, setPortalData] = useState<{
+    isAffiliate: boolean
+    affiliate?: { name: string; referralCode: string; joinedAt: string }
+    stats?: { totalEarned: number; pendingPayout: number; totalReferrals: number; teamSize: number; teamBonus: number }
+    refLink?: string
+    transactions?: typeof recentTransactions
+    teamMembers?: typeof salesTeam
+    payouts?: typeof payoutHistory
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isLoggedIn) { setLoading(false); return }
+    fetch('/api/affiliates/portal')
+      .then(r => r.json())
+      .then(setPortalData)
+      .catch(() => setPortalData({ isAffiliate: false }))
+      .finally(() => setLoading(false))
+  }, [isLoggedIn])
+
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'transactions' | 'team' | 'payouts' | 'performance'>('transactions')
   const [showPayoutModal, setShowPayoutModal] = useState(false)
+  const [payoutMethod, setPayoutMethod] = useState('Wire Transfer (USD)')
+  const [payoutAccount, setPayoutAccount] = useState('')
   const [payoutRequested, setPayoutRequested] = useState(false)
+  const [payoutLoading, setPayoutLoading] = useState(false)
+
+  // Use real data where available, fall back to mock for demo
+  const name = portalData?.affiliate?.name ?? user?.name ?? affiliateData.name
+  const code = portalData?.affiliate?.referralCode ?? affiliateData.code
+  const refLink = portalData?.refLink ?? affiliateData.refLink
+  const joinDate = portalData?.affiliate?.joinedAt
+    ? new Date(portalData.affiliate.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : affiliateData.joinDate
+  const stats = portalData?.stats
+    ? {
+        totalEarned: `$${portalData.stats.totalEarned.toFixed(2)}`,
+        pendingPayout: `$${portalData.stats.pendingPayout.toFixed(2)}`,
+        totalReferrals: portalData.stats.totalReferrals,
+        teamSize: portalData.stats.teamSize,
+        thisMonth: `$${(portalData.stats.totalEarned * 0.25).toFixed(2)}`, // approx
+        teamEarnings: `$${portalData.stats.teamBonus.toFixed(2)}`,
+      }
+    : affiliateData.stats
+  const txns = (portalData?.transactions?.length ?? 0) > 0 ? portalData!.transactions! : recentTransactions
+  const team = (portalData?.teamMembers?.length ?? 0) > 0 ? portalData!.teamMembers! : salesTeam
+  const history = (portalData?.payouts?.length ?? 0) > 0 ? portalData!.payouts! : payoutHistory
 
   const copy = () => {
-    navigator.clipboard.writeText(affiliateData.refLink)
+    navigator.clipboard.writeText(refLink)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handlePayoutRequest = async () => {
+    if (!payoutAccount.trim()) return
+    setPayoutLoading(true)
+    try {
+      await fetch('/api/affiliates/payout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: portalData?.stats?.pendingPayout ?? 0,
+          method: payoutMethod,
+          accountDetails: payoutAccount,
+        }),
+      })
+      setPayoutRequested(true)
+    } finally {
+      setPayoutLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+        <Loader2 className="w-8 h-8 animate-spin text-white/40" />
+      </div>
+    )
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-3">Sign in to view your portal</h2>
+          <Link href="/login?redirect=/affiliates/portal" className="gold-btn inline-flex items-center gap-2">
+            Sign In <ChevronRight size={16} />
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (portalData && !portalData.isAffiliate) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="min-h-[80vh] flex items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+              style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)' }}>
+              <Users size={32} className="text-red-400" />
+            </div>
+            <h2 className="text-2xl font-bold mb-3">You&apos;re not an affiliate yet</h2>
+            <p className="text-white/55 mb-6">Apply to the program to get your referral link and start earning 15% lifetime commissions.</p>
+            <Link href="/affiliates#join" className="gold-btn inline-flex items-center gap-2">
+              Apply Now <ChevronRight size={16} />
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   const tabs = [
-    { id: 'transactions',  label: 'Transactions',   count: recentTransactions.length },
-    { id: 'team',          label: 'Sales Team',      count: salesTeam.length },
-    { id: 'payouts',       label: 'Payout History',  count: payoutHistory.length },
+    { id: 'transactions',  label: 'Transactions',   count: txns.length },
+    { id: 'team',          label: 'Sales Team',      count: team.length },
+    { id: 'payouts',       label: 'Payout History',  count: history.length },
     { id: 'performance',   label: 'Performance',     count: null },
   ] as const
 
@@ -246,8 +354,8 @@ export default function AffiliatePortalPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
             <div>
               <p className="text-sm text-white/40 mb-1">Welcome back,</p>
-              <h1 className="text-3xl font-bold">{affiliateData.name}</h1>
-              <p className="text-sm text-white/40 mt-1">Affiliate since {affiliateData.joinDate}</p>
+              <h1 className="text-3xl font-bold">{name}</h1>
+              <p className="text-sm text-white/40 mt-1">Affiliate since {joinDate}</p>
             </div>
             <div className="flex items-center gap-3">
               <Link href="/affiliates/resources" className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
@@ -271,12 +379,12 @@ export default function AffiliatePortalPage() {
       <section className="px-6 pb-8">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { icon: DollarSign, label: 'Total Earned',     value: affiliateData.stats.totalEarned,    sub: 'All-time' },
-            { icon: Clock,      label: 'Pending Payout',   value: affiliateData.stats.pendingPayout,  sub: 'Awaiting payment' },
-            { icon: TrendingUp, label: 'This Month',       value: affiliateData.stats.thisMonth,      sub: 'Direct commissions' },
-            { icon: Users,      label: 'Sales Team Bonus', value: affiliateData.stats.teamEarnings,   sub: 'This month' },
-            { icon: ArrowUpRight, label: 'My Referrals',   value: affiliateData.stats.totalReferrals.toString(), sub: 'Total clients' },
-            { icon: Users,      label: 'Sales Team',       value: affiliateData.stats.teamSize.toString(), sub: 'Active affiliates' },
+            { icon: DollarSign, label: 'Total Earned',     value: stats.totalEarned,    sub: 'All-time' },
+            { icon: Clock,      label: 'Pending Payout',   value: stats.pendingPayout,  sub: 'Awaiting payment' },
+            { icon: TrendingUp, label: 'This Month',       value: stats.thisMonth,      sub: 'Direct commissions' },
+            { icon: Users,      label: 'Sales Team Bonus', value: stats.teamEarnings,   sub: 'This month' },
+            { icon: ArrowUpRight, label: 'My Referrals',   value: stats.totalReferrals.toString(), sub: 'Total clients' },
+            { icon: Users,      label: 'Sales Team',       value: stats.teamSize.toString(), sub: 'Active affiliates' },
           ].map(s => (
             <div key={s.label} className="glass-card p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -296,11 +404,11 @@ export default function AffiliatePortalPage() {
           <div className="glass-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
               <p className="text-xs text-white/40 mb-1">Your Referral Link</p>
-              <code className="text-sm text-red-400">{affiliateData.refLink}</code>
+              <code className="text-sm text-red-400">{refLink}</code>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               <div className="text-xs text-white/40">
-                Code: <span className="font-mono text-white/70 font-semibold">{affiliateData.code}</span>
+                Code: <span className="font-mono text-white/70 font-semibold">{code}</span>
               </div>
               <button onClick={copy}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all duration-200"
@@ -332,7 +440,7 @@ export default function AffiliatePortalPage() {
             </div>
             <div>
               <div className="text-lg font-bold text-white">+5% Sales Team Bonus</div>
-              <div className="text-sm text-white/50">On every transaction from all {affiliateData.stats.teamSize} members of your sales team</div>
+              <div className="text-sm text-white/50">On every transaction from all {stats.teamSize} members of your sales team</div>
             </div>
           </div>
         </div>
@@ -374,8 +482,8 @@ export default function AffiliatePortalPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentTransactions.map((txn, i) => (
-                      <tr key={txn.id} className={`border-b border-white/5 hover:bg-white/2 transition-colors ${i === recentTransactions.length - 1 ? 'border-0' : ''}`}>
+                    {txns.map((txn, i) => (
+                      <tr key={txn.id} className={`border-b border-white/5 hover:bg-white/2 transition-colors ${i === txns.length - 1 ? 'border-0' : ''}`}>
                         <td className="px-5 py-4">
                           <div className="font-medium text-white">{txn.client}</div>
                           <div className="text-xs text-white/35">{txn.id}</div>
@@ -425,8 +533,8 @@ export default function AffiliatePortalPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {salesTeam.map((m, i) => (
-                        <tr key={m.name} className={`border-b border-white/5 hover:bg-white/2 transition-colors ${i === salesTeam.length - 1 ? 'border-0' : ''}`}>
+                      {team.map((m, i) => (
+                        <tr key={m.name} className={`border-b border-white/5 hover:bg-white/2 transition-colors ${i === team.length - 1 ? 'border-0' : ''}`}>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
@@ -449,7 +557,7 @@ export default function AffiliatePortalPage() {
               </div>
               <div className="text-center pt-4">
                 <p className="text-sm text-white/40 mb-3">Want to grow your sales team?</p>
-                <a href="mailto:?subject=Join Atlas Affiliate Program&body=I thought you'd be interested in the Atlas affiliate program. Use my link to join: https://atlas.co/affiliates?ref=ATLAS-DS7K2"
+                <a href={`mailto:?subject=Join Atlas Affiliate Program&body=I thought you'd be interested in the Atlas affiliate program. Use my link to join: ${refLink}`}
                   className="gold-btn inline-flex items-center gap-2 text-sm">
                   Invite Someone <ChevronRight size={16} />
                 </a>
@@ -463,7 +571,7 @@ export default function AffiliatePortalPage() {
               <div className="glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="text-sm text-white/40 mb-0.5">Available for payout</div>
-                  <div className="text-2xl font-bold gold-text">{affiliateData.stats.pendingPayout}</div>
+                  <div className="text-2xl font-bold gold-text">{stats.pendingPayout}</div>
                 </div>
                 <button onClick={() => setShowPayoutModal(true)}
                   className="gold-btn inline-flex items-center gap-2 text-sm">
@@ -480,8 +588,8 @@ export default function AffiliatePortalPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {payoutHistory.map((p, i) => (
-                      <tr key={p.date} className={`border-b border-white/5 hover:bg-white/2 ${i === payoutHistory.length-1 ? 'border-0' : ''}`}>
+                    {history.map((p, i) => (
+                      <tr key={p.date} className={`border-b border-white/5 hover:bg-white/2 ${i === history.length-1 ? 'border-0' : ''}`}>
                         <td className="px-5 py-4 text-white/60">{p.date}</td>
                         <td className="px-5 py-4 font-semibold text-white">{p.amount}</td>
                         <td className="px-5 py-4 text-white/50">{p.method}</td>
@@ -544,18 +652,18 @@ export default function AffiliatePortalPage() {
               <div className="text-center py-4">
                 <CheckCircle2 size={42} className="text-red-400 mx-auto mb-4" />
                 <h3 className="text-xl font-bold mb-2">Payout Requested!</h3>
-                <p className="text-sm text-white/55">Your payout of {affiliateData.stats.pendingPayout} will be processed within 2 business days.</p>
+                <p className="text-sm text-white/55">Your payout of {stats.pendingPayout} will be processed within 2 business days.</p>
                 <button onClick={() => { setShowPayoutModal(false); setPayoutRequested(false) }}
                   className="mt-6 gold-btn text-sm px-6">Done</button>
               </div>
             ) : (
               <>
                 <h3 className="text-xl font-bold mb-1">Request Payout</h3>
-                <p className="text-sm text-white/50 mb-6">Available balance: <span className="text-red-400 font-semibold">{affiliateData.stats.pendingPayout}</span></p>
+                <p className="text-sm text-white/50 mb-6">Available balance: <span className="text-red-400 font-semibold">{stats.pendingPayout}</span></p>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-white/70 mb-2">Payout Method</label>
-                    <select className="atlas-select">
+                    <select className="atlas-select" value={payoutMethod} onChange={e => setPayoutMethod(e.target.value)}>
                       <option>Wire Transfer (USD)</option>
                       <option>PayPal</option>
                       <option>USDC (Ethereum)</option>
@@ -564,10 +672,14 @@ export default function AffiliatePortalPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-white/70 mb-2">Account / Wallet Address</label>
-                    <input type="text" className="atlas-input" placeholder="Bank account, PayPal email, or wallet address" />
+                    <input type="text" className="atlas-input" placeholder="Bank account, PayPal email, or wallet address"
+                      value={payoutAccount} onChange={e => setPayoutAccount(e.target.value)} />
                   </div>
-                  <button onClick={() => setPayoutRequested(true)} className="gold-btn w-full flex items-center justify-center gap-2">
-                    Confirm Payout Request <ChevronRight size={16} />
+                  <button onClick={handlePayoutRequest} disabled={payoutLoading || !payoutAccount.trim()}
+                    className="gold-btn w-full flex items-center justify-center gap-2 disabled:opacity-60">
+                    {payoutLoading
+                      ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing…</>
+                      : <>Confirm Payout Request <ChevronRight size={16} /></>}
                   </button>
                 </div>
               </>

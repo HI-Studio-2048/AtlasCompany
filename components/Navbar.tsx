@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { Globe, Menu, X, Sun, Moon } from 'lucide-react'
 import { useLang } from '@/context/LanguageContext'
 import { useTheme } from '@/context/ThemeContext'
+import { useAuth } from '@/context/AuthContext'
 
 export default function Navbar() {
   const { t, lang, setLang } = useLang()
   const { theme, toggleTheme } = useTheme()
+  const { user, isLoggedIn, logout } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -70,13 +72,29 @@ export default function Navbar() {
             {lang === 'en' ? '中文' : 'EN'}
           </button>
 
-          <Link
-            href="/start"
-            id="nav-get-started"
-            className="gold-btn text-sm px-6 py-2.5"
-          >
-            {t('nav.getStarted')}
-          </Link>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all" style={{ border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}>
+                {user?.avatar
+                  ? <img src={user.avatar} alt="" className="w-5 h-5 rounded-full" />
+                  : <div className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center text-white text-xs">{(user?.name ?? user?.email ?? 'U')[0].toUpperCase()}</div>
+                }
+                <span>{user?.name ?? user?.email ?? 'Account'}</span>
+              </Link>
+              <button onClick={logout} className="text-sm px-3 py-1.5 rounded-lg transition-all hover:opacity-80" style={{ border: '1px solid var(--border-strong)', color: 'var(--text-3)' }}>
+                {lang === 'zh' ? '退出' : 'Sign out'}
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm px-4 py-2 rounded-lg transition-all hover:opacity-80" style={{ color: 'var(--text-2)' }}>
+                {lang === 'zh' ? '登录' : 'Sign in'}
+              </Link>
+              <Link href="/start" id="nav-get-started" className="gold-btn text-sm px-6 py-2.5">
+                {t('nav.getStarted')}
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -124,9 +142,20 @@ export default function Navbar() {
             >
               {lang === 'en' ? '中文' : 'EN'}
             </button>
-            <Link href="/start" className="gold-btn text-sm px-6 py-2.5 flex-1 text-center">
-              {t('nav.getStarted')}
-            </Link>
+            {isLoggedIn ? (
+              <button onClick={logout} className="gold-btn text-sm px-6 py-2.5 flex-1 text-center">
+                {lang === 'zh' ? '退出登录' : 'Sign out'}
+              </button>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm px-4 py-2 rounded-lg" style={{ border: '1px solid var(--border-strong)', color: 'var(--text-2)' }} onClick={() => setMenuOpen(false)}>
+                  {lang === 'zh' ? '登录' : 'Sign in'}
+                </Link>
+                <Link href="/start" className="gold-btn text-sm px-6 py-2.5 flex-1 text-center" onClick={() => setMenuOpen(false)}>
+                  {t('nav.getStarted')}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

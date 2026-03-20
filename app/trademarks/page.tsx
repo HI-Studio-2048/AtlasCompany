@@ -34,11 +34,28 @@ export default function TrademarksPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.brand || !form.email) return
     setLoading(true)
-    setTimeout(() => { setLoading(false); setSubmitted(true) }, 1400)
+    try {
+      const res = await fetch('/api/trademarks/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandName: form.brand,
+          niceClasses: form.niceClass,
+          countries: form.countries,
+          email: form.email,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSubmitted(true)
+    } catch {
+      // keep form visible on error
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

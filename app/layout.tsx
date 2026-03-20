@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { ThemeProvider } from '@/context/ThemeContext'
+import { AuthProvider } from '@/context/AuthContext'
+import { SessionProvider } from 'next-auth/react'
 
 export const metadata: Metadata = {
   title: 'Atlas Company — Global Business Formation',
@@ -38,9 +40,13 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="antialiased">
-        <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </LanguageProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   )
