@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 type Lang = 'en' | 'zh'
 
@@ -401,7 +401,17 @@ const translations: Record<Lang, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>('en')
+  const [lang, setLang] = useState<Lang>(() => {
+    try {
+      const saved = localStorage.getItem('atlas-lang')
+      if (saved === 'en' || saved === 'zh') return saved
+    } catch {}
+    return 'en'
+  })
+
+  useEffect(() => {
+    try { localStorage.setItem('atlas-lang', lang) } catch {}
+  }, [lang])
 
   const t = (key: string): string => {
     return translations[lang][key] ?? key

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 
 // ─── Monthly Performance Data ─────────────────────────────────────────────────
-const monthlyData = [
+const MOCK_MONTHLY = [
   { month: 'Sep',  direct: 480,   team: 0    },
   { month: 'Oct',  direct: 720,   team: 0    },
   { month: 'Nov',  direct: 990,   team: 36   },
@@ -23,7 +23,29 @@ const monthlyData = [
   { month: 'Mar',  direct: 2062,  team: 687  },
 ]
 
-function EarningsChart() {
+type MonthlyPoint = { month: string; direct: number; team: number }
+
+function buildMonthlyData(transactions: { type: string; commissionAmount?: string | null; createdAt?: string | null }[]): MonthlyPoint[] {
+  const map: Record<string, MonthlyPoint> = {}
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  transactions.forEach(tx => {
+    const date = tx.createdAt ? new Date(tx.createdAt) : null
+    if (!date) return
+    const key = `${date.getFullYear()}-${date.getMonth()}`
+    const month = MONTHS[date.getMonth()]
+    if (!map[key]) map[key] = { month, direct: 0, team: 0 }
+    const amount = Number(tx.commissionAmount ?? 0)
+    if (tx.type === 'team') map[key].team += amount
+    else map[key].direct += amount
+  })
+  return Object.entries(map)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, v]) => v)
+    .slice(-7)
+}
+
+function EarningsChart({ data, isMock }: { data: MonthlyPoint[]; isMock: boolean }) {
+  const monthlyData = data.length > 0 ? data : MOCK_MONTHLY
   const [hovered, setHovered] = useState<number | null>(null)
   const { theme } = useTheme()
   const gridStroke = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)'
@@ -41,7 +63,15 @@ function EarningsChart() {
     <div className="glass-card p-6 md:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
         <div>
-          <h3 className="font-semibold text-white text-lg">Monthly Earnings</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-white text-lg">Monthly Earnings</h3>
+            {isMock && (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(220,38,38,0.12)', color: '#F87171', border: '1px solid rgba(220,38,38,0.25)' }}>
+                Sample
+              </span>
+            )}
+          </div>
           <p className="text-xs text-white/40 mt-0.5">Direct commissions + sales team bonuses</p>
         </div>
         <div className="flex items-center gap-5 text-xs text-white/50">
@@ -602,6 +632,8 @@ export default function AffiliatePortalPage() {
   const txns = (portalData?.transactions?.length ?? 0) > 0 ? portalData!.transactions! : recentTransactions
   const team = (portalData?.teamMembers?.length ?? 0) > 0 ? portalData!.teamMembers! : salesTeam
   const history = (portalData?.payouts?.length ?? 0) > 0 ? portalData!.payouts! : payoutHistory
+  const isMockData = !portalData?.isAffiliate || (portalData?.transactions?.length ?? 0) === 0
+  const chartData = portalData?.transactions ? buildMonthlyData(portalData.transactions) : []
 
   const copy = () => {
     navigator.clipboard.writeText(refLink)
@@ -1063,7 +1095,7 @@ export default function AffiliatePortalPage() {
           {/* Performance Tab */}
           {activeTab === 'performance' && (
             <div className="space-y-6">
-              <EarningsChart />
+              <EarningsChart data={chartData} isMock={isMockData} />
               <div className="glass-card p-6">
                 <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <BarChart2 size={16} className="text-red-400" /> Referral Breakdown
