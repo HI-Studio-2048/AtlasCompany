@@ -130,6 +130,21 @@ export const influencerDiscountCodes = pgTable('influencer_discount_codes', {
 
 export type InfluencerDiscountCode = typeof influencerDiscountCodes.$inferSelect
 
+// ─── Company Documents ────────────────────────────────────────────────────────
+
+export const companyDocuments = pgTable('company_documents', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  companyId: text('company_id').references(() => companies.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),                          // e.g. "Certificate of Incorporation"
+  type: varchar('type', { length: 50 }).notNull(),       // certificate | resolution | license | filing | other
+  url: text('url').notNull(),                            // download URL (Vercel Blob / S3 / etc.)
+  uploadedBy: varchar('uploaded_by', { length: 20 }).default('admin'), // admin | user
+  createdAt: timestamp('created_at').defaultNow(),
+})
+
+export type CompanyDocument = typeof companyDocuments.$inferSelect
+
 // ─── Trademark Applications ───────────────────────────────────────────────────
 
 export const trademarkApplications = pgTable('trademark_applications', {
